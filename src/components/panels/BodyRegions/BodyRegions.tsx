@@ -1,0 +1,143 @@
+import { useState } from 'react'
+import { MapPin } from 'lucide-react'
+import { BODY_REGIONS } from '../../../data/bodyRegions'
+import { MUSCLES } from '../../../data/muscles'
+import { TECHNIQUES } from '../../../data/techniques'
+import { SectionHeader } from '../../shared/SectionHeader'
+import { Badge } from '../../shared/Badge'
+import { getMuscleById, getTechniqueById } from '../../../utils/filterHelpers'
+import type { BodyRegion, Muscle } from '../../../types/anatomy.types'
+import type { Technique } from '../../../types/technique.types'
+import { cn } from '../../../utils/cn'
+
+function RegionDetail({ region }: { region: BodyRegion }) {
+  const muscles = region.muscles
+    .map((id) => getMuscleById(MUSCLES, id))
+    .filter((m): m is Muscle => m !== undefined)
+  const techniques = region.techniques
+    .map((id) => getTechniqueById(TECHNIQUES, id))
+    .filter((t): t is Technique => t !== undefined)
+
+  return (
+    <div className="flex-1 overflow-y-auto p-6">
+      <h2 className="text-xl font-bold text-white mb-1">{region.name}</h2>
+      <p className="text-sm text-gray-400 mb-6">{region.description}</p>
+
+      <div className="grid grid-cols-2 gap-6">
+        {/* Muscles */}
+        <div>
+          <h3 className="text-xs font-semibold text-amber-400 uppercase tracking-wider mb-3">
+            Muscles ({muscles.length})
+          </h3>
+          <div className="space-y-2">
+            {muscles.map((m) => (
+              <div key={m.id} className="p-3 bg-bg-secondary rounded-xl border border-bg-border">
+                <p className="text-sm font-medium text-white">{m.name}</p>
+                <div className="flex gap-1.5 mt-1">
+                  <Badge variant="gray" size="sm">{m.layer}</Badge>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Techniques */}
+        <div>
+          <h3 className="text-xs font-semibold text-amber-400 uppercase tracking-wider mb-3">
+            Applicable Techniques ({techniques.length})
+          </h3>
+          <div className="space-y-2">
+            {techniques.map((t) => (
+              <div key={t.id} className="p-3 bg-bg-secondary rounded-xl border border-bg-border">
+                <p className="text-sm font-medium text-white">{t.name}</p>
+                <Badge variant="blue" size="sm">{t.pressure} pressure</Badge>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Draping notes */}
+      <div className="mt-6">
+        <h3 className="text-xs font-semibold text-amber-400 uppercase tracking-wider mb-3">
+          Draping & Positioning
+        </h3>
+        <ul className="space-y-2">
+          {region.drapingNotes.map((note, i) => (
+            <li key={i} className="flex gap-2 text-sm text-gray-300">
+              <span className="text-amber-500 shrink-0 mt-0.5">•</span>{note}
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* Common conditions */}
+      <div className="mt-6">
+        <h3 className="text-xs font-semibold text-amber-400 uppercase tracking-wider mb-3">
+          Common Conditions Treated
+        </h3>
+        <div className="flex flex-wrap gap-1.5">
+          {region.commonConditions.map((c) => (
+            <Badge key={c} variant="purple">{c}</Badge>
+          ))}
+        </div>
+      </div>
+
+      {/* Client positions */}
+      <div className="mt-6">
+        <h3 className="text-xs font-semibold text-amber-400 uppercase tracking-wider mb-2">
+          Client Positions
+        </h3>
+        <div className="flex gap-2">
+          {region.clientPositions.map((p) => (
+            <Badge key={p} variant="blue">{p}</Badge>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export function BodyRegions() {
+  const [selected, setSelected] = useState<string>(BODY_REGIONS[0].id)
+  const activeRegion = BODY_REGIONS.find((r) => r.id === selected)
+  if (!activeRegion) return null
+
+  return (
+    <div className="flex flex-col h-full">
+      <SectionHeader
+        title="Body Regions"
+        subtitle="Region-specific techniques, draping, and clinical protocols"
+        icon={<MapPin className="w-5 h-5" />}
+      />
+
+      <div className="flex gap-4 flex-1 overflow-hidden">
+        {/* Region selector */}
+        <div className="w-52 space-y-1.5 overflow-y-auto">
+          {BODY_REGIONS.map((region) => (
+            <button
+              key={region.id}
+              onClick={() => setSelected(region.id)}
+              className={cn(
+                'w-full text-left px-4 py-3 rounded-xl border text-sm font-medium transition-all',
+                selected === region.id
+                  ? 'bg-amber-500/15 border-amber-500/40 text-amber-400'
+                  : 'bg-bg-secondary border-bg-border text-gray-300 hover:bg-bg-elevated',
+              )}
+            >
+              {region.name}
+              <div className="text-xs text-gray-500 font-normal mt-0.5">
+                {region.muscles.length} muscles
+              </div>
+            </button>
+          ))}
+        </div>
+
+        {/* Detail */}
+        <div className="flex-1 bg-bg-secondary rounded-xl border border-bg-border overflow-hidden">
+          <RegionDetail region={activeRegion} />
+        </div>
+      </div>
+    </div>
+  )
+}
