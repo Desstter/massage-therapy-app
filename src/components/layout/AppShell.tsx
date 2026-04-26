@@ -22,7 +22,7 @@ export function AppShell() {
   }
 
   return (
-    <div className="flex h-screen bg-bg-primary overflow-hidden">
+    <div className="flex h-[100dvh] bg-bg-primary overflow-hidden">
       {/* Mobile backdrop */}
       {mobileMenuOpen && (
         <div

@@ -16,7 +16,7 @@ interface TabBarProps<T extends string> {
 
 export function TabBar<T extends string>({ tabs, active, onChange, className }: TabBarProps<T>) {
   return (
-    <div className={cn('flex gap-1 border-b border-bg-border', className)}>
+    <div className={cn('flex gap-1 border-b border-bg-border overflow-x-auto', className)}>
       {tabs.map((tab) => (
         <button
           key={tab.id}

@@ -164,6 +164,7 @@ function WeekDetail({ week }: { week: RoadmapWeek }) {
 
 export function LearningRoadmap() {
   const [selected, setSelected] = useState<number>(1)
+  const [mobileView, setMobileView] = useState<'list' | 'detail'>('list')
   const { overallProgress, studyStreak, getWeekStatus } = useProgress()
   const selectedWeek = ROADMAP.find((w) => w.week === selected)!
 
@@ -187,7 +188,8 @@ export function LearningRoadmap() {
         }
       />
 
-      <div className="flex gap-4 flex-1 overflow-hidden">
+      {/* ── Desktop layout (lg+): two-column ── */}
+      <div className="hidden lg:flex gap-4 flex-1 overflow-hidden">
         {/* Week list */}
         <div className="w-80 overflow-y-auto space-y-1.5 pr-1">
           {ROADMAP.map((week) => (
@@ -214,6 +216,58 @@ export function LearningRoadmap() {
             <WeekDetail week={selectedWeek} />
           )}
         </div>
+      </div>
+
+      {/* ── Mobile layout (<lg): single-pane with view switcher ── */}
+      <div className="lg:hidden flex-1 flex flex-col overflow-hidden">
+        {/* View switcher */}
+        <div className="flex gap-1 mb-3 bg-bg-secondary rounded-xl p-1 border border-bg-border">
+          {(['list', 'detail'] as const).map((v) => (
+            <button
+              key={v}
+              onClick={() => setMobileView(v)}
+              className={cn(
+                'flex-1 py-2.5 rounded-lg text-sm font-medium capitalize transition-colors',
+                mobileView === v
+                  ? 'bg-amber-500/20 text-amber-400'
+                  : 'text-gray-500 hover:text-gray-300',
+              )}
+            >
+              {v}
+            </button>
+          ))}
+        </div>
+
+        {/* List pane */}
+        {mobileView === 'list' && (
+          <div className="flex-1 overflow-y-auto space-y-1.5 pr-1">
+            {ROADMAP.map((week) => (
+              <WeekCard
+                key={week.week}
+                week={week}
+                isSelected={selected === week.week}
+                onSelect={() => { setSelected(week.week); setMobileView('detail') }}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Detail pane */}
+        {mobileView === 'detail' && (
+          <div className="flex-1 overflow-hidden">
+            {getWeekStatus(selectedWeek.week) === 'locked' ? (
+              <div className="flex flex-col items-center justify-center h-full text-center bg-bg-secondary rounded-xl border border-bg-border">
+                <Lock className="w-12 h-12 text-gray-600 mb-4" />
+                <p className="text-lg font-bold text-gray-400">Week {selectedWeek.week} Locked</p>
+                <p className="text-sm text-gray-500 mt-1 max-w-xs">
+                  Complete previous week's objectives to unlock this week.
+                </p>
+              </div>
+            ) : (
+              <WeekDetail week={selectedWeek} />
+            )}
+          </div>
+        )}
       </div>
     </div>
   )

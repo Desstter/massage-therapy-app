@@ -33,13 +33,13 @@ export function Modal({ open, onClose, title, children, size = 'md' }: ModalProp
   return createPortal(
     <div
       ref={backdropRef}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-[60] flex items-center justify-center p-4"
       style={{ backgroundColor: 'rgba(0,0,0,0.7)' }}
       onClick={(e) => e.target === backdropRef.current && onClose()}
     >
       <div
         className={cn(
-          'w-full bg-bg-secondary border border-bg-border rounded-2xl shadow-2xl',
+          'w-full bg-bg-secondary border border-bg-border rounded-2xl shadow-2xl max-h-[90dvh] flex flex-col',
           sizeClasses[size],
         )}
       >
@@ -48,13 +48,13 @@ export function Modal({ open, onClose, title, children, size = 'md' }: ModalProp
             <h2 className="text-lg font-semibold text-white">{title}</h2>
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-bg-elevated transition-colors"
+              className="p-2.5 rounded-lg text-gray-400 hover:text-white hover:bg-bg-elevated transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
           </div>
         )}
-        {children}
+        <div className="overflow-y-auto flex-1">{children}</div>
       </div>
     </div>,
     document.body,

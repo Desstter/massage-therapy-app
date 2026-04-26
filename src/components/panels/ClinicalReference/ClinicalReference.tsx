@@ -107,65 +107,116 @@ function ContraindicationTable() {
 
 function SpecialPopulations() {
   const [selected, setSelected] = useState(SPECIAL_POPULATIONS[0].id)
+  const [mobileView, setMobileView] = useState<'list' | 'detail'>('list')
   const pop = SPECIAL_POPULATIONS.find((p) => p.id === selected)
   if (!pop) return null
 
+  const detailContent = (
+    <div className="flex-1 bg-bg-secondary rounded-xl border border-bg-border overflow-y-auto p-5">
+      <h2 className="text-lg font-bold text-white mb-1">{pop.name}</h2>
+      <p className="text-sm text-gray-400 mb-5">{pop.description}</p>
+
+      <Section title="Key Considerations">
+        <BulletList items={pop.considerations} />
+      </Section>
+
+      <Section title="Pressure Guidelines">
+        <div className="p-3 bg-amber-950/30 border border-amber-500/30 rounded-xl">
+          <p className="text-sm text-amber-200">{pop.pressureGuidelines}</p>
+        </div>
+      </Section>
+
+      <Section title="Recommended Techniques">
+        <div className="flex flex-wrap gap-1.5">
+          {pop.recommendedTechniques.map((t) => (
+            <Badge key={t} variant="green" size="sm">{t}</Badge>
+          ))}
+        </div>
+      </Section>
+
+      <Section title="Techniques to Avoid">
+        <div className="flex flex-wrap gap-1.5">
+          {pop.techniquesToAvoid.map((t) => (
+            <Badge key={t} variant="red" size="sm">{t}</Badge>
+          ))}
+        </div>
+      </Section>
+
+      <Section title="Positioning Notes">
+        <BulletList items={pop.positioningNotes} />
+      </Section>
+
+      <Section title="Communication Tips">
+        <BulletList items={pop.communicationTips} />
+      </Section>
+    </div>
+  )
+
   return (
-    <div className="flex gap-4 h-full">
-      <div className="w-48 space-y-1.5">
-        {SPECIAL_POPULATIONS.map((p) => (
-          <button
-            key={p.id}
-            onClick={() => setSelected(p.id)}
-            className={cn(
-              'w-full text-left px-4 py-3 rounded-xl border text-sm font-medium transition-all',
-              selected === p.id
-                ? 'bg-amber-500/15 border-amber-500/40 text-amber-400'
-                : 'bg-bg-secondary border-bg-border text-gray-300 hover:bg-bg-elevated',
-            )}
-          >
-            {p.name}
-          </button>
-        ))}
+    <div className="flex flex-col h-full">
+      {/* ── Desktop layout (lg+): two-column ── */}
+      <div className="hidden lg:flex gap-4 h-full">
+        <div className="w-48 space-y-1.5">
+          {SPECIAL_POPULATIONS.map((p) => (
+            <button
+              key={p.id}
+              onClick={() => setSelected(p.id)}
+              className={cn(
+                'w-full text-left px-4 py-3 rounded-xl border text-sm font-medium transition-all',
+                selected === p.id
+                  ? 'bg-amber-500/15 border-amber-500/40 text-amber-400'
+                  : 'bg-bg-secondary border-bg-border text-gray-300 hover:bg-bg-elevated',
+              )}
+            >
+              {p.name}
+            </button>
+          ))}
+        </div>
+        {detailContent}
       </div>
 
-      <div className="flex-1 bg-bg-secondary rounded-xl border border-bg-border overflow-y-auto p-5">
-        <h2 className="text-lg font-bold text-white mb-1">{pop.name}</h2>
-        <p className="text-sm text-gray-400 mb-5">{pop.description}</p>
+      {/* ── Mobile layout (<lg): single-pane with view switcher ── */}
+      <div className="lg:hidden flex-1 flex flex-col overflow-hidden">
+        {/* View switcher */}
+        <div className="flex gap-1 mb-3 bg-bg-secondary rounded-xl p-1 border border-bg-border">
+          {(['list', 'detail'] as const).map((v) => (
+            <button
+              key={v}
+              onClick={() => setMobileView(v)}
+              className={cn(
+                'flex-1 py-2.5 rounded-lg text-sm font-medium capitalize transition-colors',
+                mobileView === v
+                  ? 'bg-amber-500/20 text-amber-400'
+                  : 'text-gray-500 hover:text-gray-300',
+              )}
+            >
+              {v}
+            </button>
+          ))}
+        </div>
 
-        <Section title="Key Considerations">
-          <BulletList items={pop.considerations} />
-        </Section>
-
-        <Section title="Pressure Guidelines">
-          <div className="p-3 bg-amber-950/30 border border-amber-500/30 rounded-xl">
-            <p className="text-sm text-amber-200">{pop.pressureGuidelines}</p>
-          </div>
-        </Section>
-
-        <Section title="Recommended Techniques">
-          <div className="flex flex-wrap gap-1.5">
-            {pop.recommendedTechniques.map((t) => (
-              <Badge key={t} variant="green" size="sm">{t}</Badge>
+        {/* List pane */}
+        {mobileView === 'list' && (
+          <div className="flex-1 overflow-y-auto space-y-1.5">
+            {SPECIAL_POPULATIONS.map((p) => (
+              <button
+                key={p.id}
+                onClick={() => { setSelected(p.id); setMobileView('detail') }}
+                className={cn(
+                  'w-full text-left px-4 py-3 rounded-xl border text-sm font-medium transition-all',
+                  selected === p.id
+                    ? 'bg-amber-500/15 border-amber-500/40 text-amber-400'
+                    : 'bg-bg-secondary border-bg-border text-gray-300 hover:bg-bg-elevated',
+                )}
+              >
+                {p.name}
+              </button>
             ))}
           </div>
-        </Section>
+        )}
 
-        <Section title="Techniques to Avoid">
-          <div className="flex flex-wrap gap-1.5">
-            {pop.techniquesToAvoid.map((t) => (
-              <Badge key={t} variant="red" size="sm">{t}</Badge>
-            ))}
-          </div>
-        </Section>
-
-        <Section title="Positioning Notes">
-          <BulletList items={pop.positioningNotes} />
-        </Section>
-
-        <Section title="Communication Tips">
-          <BulletList items={pop.communicationTips} />
-        </Section>
+        {/* Detail pane */}
+        {mobileView === 'detail' && detailContent}
       </div>
     </div>
   )
@@ -286,7 +337,7 @@ function SOAPGuide() {
               <p className="text-xs text-gray-400">{section.description}</p>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <p className="text-xs font-semibold text-gray-500 uppercase mb-2">Include</p>
               <ul className="space-y-1">

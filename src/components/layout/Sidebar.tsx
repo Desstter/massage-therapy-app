@@ -68,7 +68,7 @@ export function Sidebar() {
         'lg:relative lg:translate-x-0 lg:flex lg:flex-col lg:h-full lg:bg-bg-secondary lg:border-r lg:border-bg-border lg:transition-all lg:duration-200',
         sidebarCollapsed ? 'lg:w-20' : 'lg:w-64',
         // Mobile: fixed overlay drawer
-        'fixed inset-y-0 left-0 z-50 flex flex-col h-full bg-bg-secondary border-r border-bg-border w-72 transition-transform duration-300 ease-out',
+        'fixed inset-y-0 left-0 z-50 flex flex-col h-full bg-bg-secondary border-r border-bg-border w-[280px] max-w-[85vw] transition-transform duration-300 ease-out',
         mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
       )}
     >
@@ -90,7 +90,7 @@ export function Sidebar() {
         {!sidebarCollapsed && (
           <button
             onClick={toggleMobileMenu}
-            className="p-1.5 rounded-lg text-gray-500 hover:text-white hover:bg-bg-elevated transition-colors lg:hidden"
+            className="p-2.5 rounded-lg text-gray-500 hover:text-white hover:bg-bg-elevated transition-colors lg:hidden"
             aria-label="Close navigation"
           >
             <X className="w-4 h-4" />
