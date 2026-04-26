@@ -1,9 +1,11 @@
+import { useTranslation } from 'react-i18next'
 import { useStudyStore } from '../../../store/studyStore'
 import { useProgressStore } from '../../../store/progressStore'
 import { ProgressRing } from '../../shared/ProgressRing'
 import { getRetentionRate } from '../../../utils/sm2'
 
 export function ProgressDashboard() {
+  const { t } = useTranslation()
   const { cards, sessions } = useStudyStore()
   const { studyStreak } = useProgressStore()
 
@@ -12,16 +14,15 @@ export function ProgressDashboard() {
   const matureCards = cards.filter((c) => c.interval >= 21).length
   const retentionRate = getRetentionRate(cards)
 
-
   return (
     <div className="max-w-3xl">
       {/* Top stat cards */}
       <div className="grid grid-cols-4 gap-4 mb-8">
         {[
-          { label: 'Study Streak', value: `${studyStreak}d`, color: '#f59e0b', sub: 'days in a row' },
-          { label: 'Cards Reviewed', value: reviewedCards, color: '#22c55e', sub: `of ${totalCards}` },
-          { label: 'Mature Cards', value: matureCards, color: '#3b82f6', sub: 'interval ≥ 21 days' },
-          { label: 'Retention Rate', value: `${retentionRate}%`, color: '#a855f7', sub: 'of reviewed cards' },
+          { label: t('study.streak_label'), value: `${studyStreak}d`, color: '#f59e0b', sub: t('study.streak_sub') },
+          { label: t('study.cards_reviewed_label'), value: reviewedCards, color: '#22c55e', sub: `${t('study.of')} ${totalCards}` },
+          { label: t('study.mature_cards'), value: matureCards, color: '#3b82f6', sub: t('study.mature_sub') },
+          { label: t('study.retention_rate'), value: `${retentionRate}%`, color: '#a855f7', sub: t('study.retention_sub') },
         ].map((s) => (
           <div key={s.label} className="p-4 bg-bg-secondary rounded-xl border border-bg-border text-center">
             <p className="text-2xl font-black" style={{ color: s.color }}>{s.value}</p>
@@ -34,14 +35,14 @@ export function ProgressDashboard() {
       {/* Study sessions */}
       {sessions.length > 0 && (
         <div className="mb-8">
-          <h3 className="text-sm font-semibold text-gray-300 mb-3">Recent Sessions</h3>
+          <h3 className="text-sm font-semibold text-gray-300 mb-3">{t('study.recent_sessions')}</h3>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-xs text-gray-500 uppercase border-b border-bg-border">
-                  <th className="text-left pb-2">Date</th>
-                  <th className="text-right pb-2">Cards</th>
-                  <th className="text-right pb-2">Duration</th>
+                  <th className="text-left pb-2">{t('study.date_col')}</th>
+                  <th className="text-right pb-2">{t('study.cards_col')}</th>
+                  <th className="text-right pb-2">{t('study.duration_col')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-bg-border">
@@ -58,14 +59,14 @@ export function ProgressDashboard() {
         </div>
       )}
 
-      {/* Ease factor distribution */}
+      {/* Card maturity */}
       <div>
-        <h3 className="text-sm font-semibold text-gray-300 mb-3">Card Maturity</h3>
+        <h3 className="text-sm font-semibold text-gray-300 mb-3">{t('study.card_maturity')}</h3>
         <div className="grid grid-cols-3 gap-3">
           {[
-            { label: 'New', count: cards.filter((c) => c.totalReviews === 0).length, color: '#6b7280' },
-            { label: 'Learning', count: cards.filter((c) => c.totalReviews > 0 && c.interval < 21).length, color: '#f59e0b' },
-            { label: 'Mature', count: matureCards, color: '#22c55e' },
+            { label: t('study.new_state'), count: cards.filter((c) => c.totalReviews === 0).length, color: '#6b7280' },
+            { label: t('study.learning_state'), count: cards.filter((c) => c.totalReviews > 0 && c.interval < 21).length, color: '#f59e0b' },
+            { label: t('study.mature_state'), count: matureCards, color: '#22c55e' },
           ].map((s) => (
             <div key={s.label} className="p-4 bg-bg-secondary rounded-xl border border-bg-border flex items-center gap-3">
               <ProgressRing

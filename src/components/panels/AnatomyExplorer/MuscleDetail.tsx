@@ -1,4 +1,5 @@
 import { X, BookOpen, AlertTriangle, Target } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { getMuscleById } from '../../../utils/filterHelpers'
 import { MUSCLES } from '../../../data/muscles'
 import { useAnatomyStore } from '../../../store/anatomyStore'
@@ -30,6 +31,7 @@ function List({ items }: { items: string[] }) {
 }
 
 export function MuscleDetail() {
+  const { t } = useTranslation()
   const { selectedMuscleId, closeDetailPanel } = useAnatomyStore()
   const muscle = selectedMuscleId ? getMuscleById(MUSCLES, selectedMuscleId) : null
 
@@ -59,41 +61,41 @@ export function MuscleDetail() {
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-6">
-        <Section title="Origin">
+        <Section title={t('anatomy.origin')}>
           <List items={muscle.origin} />
         </Section>
 
-        <Section title="Insertion">
+        <Section title={t('anatomy.insertion')}>
           <List items={muscle.insertion} />
         </Section>
 
-        <Section title="Actions">
+        <Section title={t('anatomy.actions')}>
           <List items={muscle.action} />
         </Section>
 
-        <Section title="Innervation">
+        <Section title={t('anatomy.innervation')}>
           <p className="text-sm text-gray-300">{muscle.innervation}</p>
         </Section>
 
-        <Section title="Blood Supply">
+        <Section title={t('anatomy.blood_supply')}>
           <p className="text-sm text-gray-300">{muscle.bloodSupply}</p>
         </Section>
 
-        <Section title="Palpation Tips" icon={<Target className="w-3.5 h-3.5" />}>
+        <Section title={t('anatomy.palpation_tips')} icon={<Target className="w-3.5 h-3.5" />}>
           <List items={muscle.palpationTips} />
         </Section>
 
-        <Section title="Massage Considerations" icon={<BookOpen className="w-3.5 h-3.5" />}>
+        <Section title={t('anatomy.massage_considerations')} icon={<BookOpen className="w-3.5 h-3.5" />}>
           <List items={muscle.massageConsiderations} />
         </Section>
 
         {muscle.contraindications.length > 0 && (
-          <Section title="Contraindications" icon={<AlertTriangle className="w-3.5 h-3.5" />}>
+          <Section title={t('anatomy.contraindications')} icon={<AlertTriangle className="w-3.5 h-3.5" />}>
             <List items={muscle.contraindications} />
           </Section>
         )}
 
-        <Section title="Common Conditions">
+        <Section title={t('anatomy.common_conditions')}>
           <div className="flex flex-wrap gap-1.5">
             {muscle.commonConditions.map((c) => (
               <Badge key={c} variant="purple">{c}</Badge>
@@ -103,7 +105,7 @@ export function MuscleDetail() {
 
         <div className="mt-4 pt-4 border-t border-bg-border">
           <p className="text-xs text-gray-500">
-            Mosby's chapter {muscle.mosbyCrossRef[0]} — p.{muscle.mosbyCrossRef[1]}
+            {t('anatomy.mosby_ref')} {muscle.mosbyCrossRef[0]} — p.{muscle.mosbyCrossRef[1]}
           </p>
         </div>
       </div>

@@ -1,8 +1,10 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { FASCIAL_LINES } from '../../../data/fascialLines'
 import { Badge } from '../../shared/Badge'
 
 export function FascialLines() {
+  const { t } = useTranslation()
   const [selected, setSelected] = useState<string | null>(null)
   const [hovered, setHovered] = useState<string | null>(null)
 
@@ -14,7 +16,6 @@ export function FascialLines() {
       {/* SVG visualization */}
       <div className="flex-1 flex items-center justify-center bg-bg-secondary rounded-xl border border-bg-border p-4">
         <svg viewBox="0 0 400 800" className="w-auto h-full" style={{ maxHeight: '640px' }}>
-          {/* Body silhouette */}
           <g opacity="0.06" fill="#94a3b8">
             <ellipse cx="200" cy="115" rx="40" ry="50" />
             <rect x="187" y="155" width="26" height="30" rx="6" />
@@ -32,7 +33,6 @@ export function FascialLines() {
             <ellipse cx="218" cy="758" rx="22" ry="12" />
           </g>
 
-          {/* All lines, dimmed */}
           {FASCIAL_LINES.map((line) => {
             const isActive = line.id === activeId
             return (
@@ -57,7 +57,7 @@ export function FascialLines() {
 
       {/* Line list + detail */}
       <div className="w-72 flex flex-col gap-3 overflow-y-auto">
-        <h3 className="text-sm font-semibold text-gray-300">Fascial Lines</h3>
+        <h3 className="text-sm font-semibold text-gray-300">{t('anatomy.fascial_lines')}</h3>
         {FASCIAL_LINES.map((line) => (
           <button
             key={line.id}
@@ -71,10 +71,7 @@ export function FascialLines() {
             }`}
           >
             <div className="flex items-center gap-2 mb-1">
-              <span
-                className="w-3 h-3 rounded-full shrink-0"
-                style={{ backgroundColor: line.color }}
-              />
+              <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: line.color }} />
               <span className="text-sm font-medium text-white">{line.alternateName}</span>
             </div>
             <p className="text-xs text-gray-400 leading-snug">{line.name}</p>
@@ -86,7 +83,7 @@ export function FascialLines() {
             <h4 className="text-sm font-bold text-amber-400 mb-2">{selectedLine.name}</h4>
             <p className="text-xs text-gray-300 mb-3">{selectedLine.description}</p>
             <div className="mb-3">
-              <p className="text-xs font-semibold text-gray-500 uppercase mb-1.5">Path</p>
+              <p className="text-xs font-semibold text-gray-500 uppercase mb-1.5">{t('anatomy.path')}</p>
               <div className="flex flex-wrap gap-1">
                 {selectedLine.path.map((p) => (
                   <Badge key={p} variant="gray" size="sm">{p}</Badge>
@@ -94,7 +91,7 @@ export function FascialLines() {
               </div>
             </div>
             <div>
-              <p className="text-xs font-semibold text-gray-500 uppercase mb-1.5">Clinical Relevance</p>
+              <p className="text-xs font-semibold text-gray-500 uppercase mb-1.5">{t('anatomy.clinical_relevance')}</p>
               <p className="text-xs text-gray-300 leading-snug">{selectedLine.massageRelevance}</p>
             </div>
           </div>

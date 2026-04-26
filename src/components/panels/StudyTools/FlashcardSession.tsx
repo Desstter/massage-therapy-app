@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Check } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useSpacedRepetition } from '../../../hooks/useSpacedRepetition'
 import { useStudyStore } from '../../../store/studyStore'
 import { Badge } from '../../shared/Badge'
@@ -11,6 +12,7 @@ import { cn } from '../../../utils/cn'
 const difficultyColors: Record<number, BadgeVariant> = { 1: 'green', 2: 'green', 3: 'amber', 4: 'orange', 5: 'red' }
 
 export function FlashcardSession() {
+  const { t } = useTranslation()
   const { stats, ensureCards, startDueSession, startCategorySession, rate, endSession } =
     useSpacedRepetition()
   const { activeSessionCardIds, currentCardIndex, getCardById } = useStudyStore()
@@ -34,7 +36,6 @@ export function FlashcardSession() {
       e.preventDefault()
       if (!flipped) setFlipped(true)
     }
-    // 1=Again, 2=Hard, 3=Good, 4=Easy — only when flipped
     if (flipped) {
       const keyMap: Record<string, SM2Rating> = { '1': 0, '2': 2, '3': 4, '4': 5 }
       const rating = keyMap[e.key]
@@ -49,14 +50,14 @@ export function FlashcardSession() {
           <Check className="w-8 h-8 text-green-400" />
         </div>
         <div className="text-center">
-          <p className="text-xl font-bold text-white">Session Complete!</p>
-          <p className="text-sm text-gray-400 mt-1">{activeSessionCardIds.length} cards reviewed</p>
+          <p className="text-xl font-bold text-white">{t('study.session_complete')}</p>
+          <p className="text-sm text-gray-400 mt-1">{t('study.cards_reviewed', { count: activeSessionCardIds.length })}</p>
         </div>
         <button
           onClick={() => { endSession(); setFlipped(false) }}
           className="px-5 py-2.5 bg-amber-500 text-black text-sm font-bold rounded-xl hover:bg-amber-400 transition-colors"
         >
-          Back to Dashboard
+          {t('study.back_dashboard')}
         </button>
       </div>
     )
@@ -68,10 +69,10 @@ export function FlashcardSession() {
         {/* Stats row */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
           {[
-            { label: 'Total Cards', value: stats.total, color: '#6b7280' },
-            { label: 'Due Now', value: stats.due, color: '#f59e0b' },
-            { label: 'Reviewed', value: stats.reviewed, color: '#22c55e' },
-            { label: 'Mature', value: stats.mature, color: '#3b82f6' },
+            { label: t('study.total_cards'), value: stats.total, color: '#6b7280' },
+            { label: t('study.due_now'), value: stats.due, color: '#f59e0b' },
+            { label: t('study.reviewed'), value: stats.reviewed, color: '#22c55e' },
+            { label: t('study.mature'), value: stats.mature, color: '#3b82f6' },
           ].map((s) => (
             <div key={s.label} className="p-5 bg-bg-secondary rounded-2xl border border-bg-border text-center">
               <p className="font-display text-4xl font-semibold" style={{ color: s.color }}>{s.value}</p>
@@ -92,17 +93,22 @@ export function FlashcardSession() {
                 : 'bg-bg-secondary text-gray-600 border border-bg-border cursor-not-allowed',
             )}
           >
-            {stats.due > 0 ? `Study ${stats.due} Due Cards` : 'No Cards Due Today'}
+            {stats.due > 0 ? t('study.study_due', { count: stats.due }) : t('study.no_cards_due')}
           </button>
 
           <div className="grid grid-cols-2 gap-2">
-            {['Anatomy', 'Techniques', 'Clinical', 'Integration'].map((cat) => (
+            {[
+              { key: 'Anatomy', label: t('study.anatomy_cat') },
+              { key: 'Techniques', label: t('study.techniques_cat') },
+              { key: 'Clinical', label: t('study.clinical_cat') },
+              { key: 'Integration', label: t('study.integration_cat') },
+            ].map((cat) => (
               <button
-                key={cat}
-                onClick={() => startCategorySession(cat)}
+                key={cat.key}
+                onClick={() => startCategorySession(cat.key)}
                 className="py-3.5 rounded-xl text-sm font-medium border border-bg-border bg-bg-secondary text-gray-300 hover:bg-bg-elevated hover:text-white transition-colors"
               >
-                {cat}
+                {cat.label}
               </button>
             ))}
           </div>
@@ -110,13 +116,13 @@ export function FlashcardSession() {
 
         {/* SM-2 key */}
         <div className="mt-8 p-5 bg-bg-secondary rounded-2xl border border-bg-border">
-          <p className="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">Rating Scale (SM-2)</p>
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">{t('study.rating_scale')}</p>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
-              { label: 'Again (0)', desc: 'Completely forgot', color: 'text-red-400' },
-              { label: 'Hard (2)', desc: 'Recalled with difficulty', color: 'text-orange-400' },
-              { label: 'Good (4)', desc: 'Correct with effort', color: 'text-amber-400' },
-              { label: 'Easy (5)', desc: 'Perfect recall', color: 'text-green-400' },
+              { label: t('study.again_label'), desc: t('study.again_desc'), color: 'text-red-400' },
+              { label: t('study.hard_label'), desc: t('study.hard_desc'), color: 'text-orange-400' },
+              { label: t('study.good_label'), desc: t('study.good_desc'), color: 'text-amber-400' },
+              { label: t('study.easy_label'), desc: t('study.easy_desc'), color: 'text-green-400' },
             ].map((r) => (
               <div key={r.label} className="text-center">
                 <p className={cn('text-sm font-bold', r.color)}>{r.label}</p>
@@ -136,14 +142,9 @@ export function FlashcardSession() {
       {/* Progress bar */}
       <div className="flex items-center gap-3">
         <div className="flex-1 h-2 bg-bg-secondary rounded-full overflow-hidden">
-          <div
-            className="h-full bg-amber-500 rounded-full transition-all duration-300"
-            style={{ width: `${progress}%` }}
-          />
+          <div className="h-full bg-amber-500 rounded-full transition-all duration-300" style={{ width: `${progress}%` }} />
         </div>
-        <span className="text-xs text-gray-500">
-          {currentCardIndex}/{activeSessionCardIds.length}
-        </span>
+        <span className="text-xs text-gray-500">{currentCardIndex}/{activeSessionCardIds.length}</span>
       </div>
 
       {/* Card */}
@@ -170,7 +171,7 @@ export function FlashcardSession() {
             >
               <div className="flex items-center justify-between mb-3">
                 <Badge variant={difficultyColors[currentCard.difficulty]} size="sm">
-                  Difficulty {currentCard.difficulty}
+                  {t('study.difficulty')} {currentCard.difficulty}
                 </Badge>
                 <Badge variant="gray" size="sm">{currentCard.category}</Badge>
               </div>
@@ -180,7 +181,7 @@ export function FlashcardSession() {
               {currentCard.hint && (
                 <p className="text-xs text-gray-500 text-center mt-3 italic">{currentCard.hint}</p>
               )}
-              <p className="text-xs text-gray-600 text-center mt-3">Tap or press Space to reveal answer</p>
+              <p className="text-xs text-gray-600 text-center mt-3">{t('study.reveal_hint')}</p>
             </div>
 
             {/* Back */}
@@ -194,13 +195,13 @@ export function FlashcardSession() {
               <p className="text-lg text-gray-200 leading-relaxed flex-1 flex items-center px-2">
                 {currentCard.back}
               </p>
-              <p className="text-xs text-gray-500 text-center mt-2">Rate your recall</p>
+              <p className="text-xs text-gray-500 text-center mt-2">{t('study.rate_recall')}</p>
             </div>
           </motion.div>
         </div>
       )}
 
-      {/* Rating buttons — only shown after flip */}
+      {/* Rating buttons */}
       <AnimatePresence>
         {flipped && (
           <motion.div
@@ -210,10 +211,10 @@ export function FlashcardSession() {
             className="grid grid-cols-4 gap-2"
           >
             {[
-              { rating: 0 as SM2Rating, label: 'Again', key: '1', color: 'bg-red-500/15 border-red-500/40 text-red-400 hover:bg-red-500/25' },
-              { rating: 2 as SM2Rating, label: 'Hard', key: '2', color: 'bg-orange-500/15 border-orange-500/40 text-orange-400 hover:bg-orange-500/25' },
-              { rating: 4 as SM2Rating, label: 'Good', key: '3', color: 'bg-amber-500/15 border-amber-500/40 text-amber-400 hover:bg-amber-500/25' },
-              { rating: 5 as SM2Rating, label: 'Easy', key: '4', color: 'bg-green-500/15 border-green-500/40 text-green-400 hover:bg-green-500/25' },
+              { rating: 0 as SM2Rating, label: t('study.again_btn'), key: '1', color: 'bg-red-500/15 border-red-500/40 text-red-400 hover:bg-red-500/25' },
+              { rating: 2 as SM2Rating, label: t('study.hard_btn'), key: '2', color: 'bg-orange-500/15 border-orange-500/40 text-orange-400 hover:bg-orange-500/25' },
+              { rating: 4 as SM2Rating, label: t('study.good_btn'), key: '3', color: 'bg-amber-500/15 border-amber-500/40 text-amber-400 hover:bg-amber-500/25' },
+              { rating: 5 as SM2Rating, label: t('study.easy_btn'), key: '4', color: 'bg-green-500/15 border-green-500/40 text-green-400 hover:bg-green-500/25' },
             ].map(({ rating, label, key, color }) => (
               <button
                 key={rating}

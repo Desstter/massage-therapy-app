@@ -1,8 +1,10 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { NERVE_PATHS } from '../../../data/nervePaths'
 import { Badge } from '../../shared/Badge'
 
 export function NervePaths() {
+  const { t } = useTranslation()
   const [selected, setSelected] = useState<string | null>(null)
   const [hovered, setHovered] = useState<string | null>(null)
 
@@ -53,7 +55,7 @@ export function NervePaths() {
 
       {/* Nerve list */}
       <div className="w-72 flex flex-col gap-2 overflow-y-auto">
-        <h3 className="text-sm font-semibold text-gray-300">Peripheral Nerves</h3>
+        <h3 className="text-sm font-semibold text-gray-300">{t('anatomy.peripheral_nerves')}</h3>
         {NERVE_PATHS.map((nerve) => (
           <button
             key={nerve.id}
@@ -67,10 +69,7 @@ export function NervePaths() {
             }`}
           >
             <div className="flex items-center gap-2 mb-0.5">
-              <span
-                className="w-3 h-3 rounded-full shrink-0"
-                style={{ backgroundColor: nerve.color }}
-              />
+              <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: nerve.color }} />
               <span className="text-sm font-medium text-white">{nerve.name}</span>
             </div>
             <p className="text-xs text-gray-500">
@@ -85,7 +84,7 @@ export function NervePaths() {
             <p className="text-xs text-gray-400 mb-3">{selectedNerve.origin}</p>
 
             <div className="mb-3">
-              <p className="text-xs font-semibold text-gray-500 uppercase mb-1">Spinal Levels</p>
+              <p className="text-xs font-semibold text-gray-500 uppercase mb-1">{t('anatomy.spinal_levels')}</p>
               <div className="flex flex-wrap gap-1">
                 {selectedNerve.spinalLevels.map((l) => (
                   <Badge key={l} variant="blue" size="sm">{l}</Badge>
@@ -94,7 +93,7 @@ export function NervePaths() {
             </div>
 
             <div className="mb-3">
-              <p className="text-xs font-semibold text-gray-500 uppercase mb-1">Entrapment Sites</p>
+              <p className="text-xs font-semibold text-gray-500 uppercase mb-1">{t('anatomy.entrapment_sites')}</p>
               <ul className="space-y-1">
                 {selectedNerve.commonEntrapmentSites.map((s) => (
                   <li key={s} className="text-xs text-gray-300 flex gap-1.5">
@@ -105,7 +104,7 @@ export function NervePaths() {
             </div>
 
             <div>
-              <p className="text-xs font-semibold text-gray-500 uppercase mb-1">Massage Notes</p>
+              <p className="text-xs font-semibold text-gray-500 uppercase mb-1">{t('anatomy.massage_notes')}</p>
               <p className="text-xs text-gray-300 leading-snug">{selectedNerve.massageConsiderations}</p>
             </div>
           </div>

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Bone, Network, Zap } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useAnatomyStore } from '../../../store/anatomyStore'
 import { SectionHeader } from '../../shared/SectionHeader'
 import { TabBar } from '../../shared/TabBar'
@@ -11,23 +12,30 @@ import { NervePaths } from './NervePaths'
 import { cn } from '../../../utils/cn'
 import type { AnatomyView } from '../../../types/app.types'
 
-const TABS = [
-  { id: 'muscles' as AnatomyView, label: 'Muscles', icon: <Bone className="w-4 h-4" /> },
-  { id: 'fascia' as AnatomyView, label: 'Fascia', icon: <Network className="w-4 h-4" /> },
-  { id: 'nerves' as AnatomyView, label: 'Nerves', icon: <Zap className="w-4 h-4" /> },
-]
-
 type MobileView = 'map' | 'list' | 'detail'
 
 export function AnatomyExplorer() {
+  const { t } = useTranslation()
   const { activeView, bodySide, detailPanelOpen, setView, setBodySide } = useAnatomyStore()
   const [mobileView, setMobileView] = useState<MobileView>('map')
+
+  const TABS = [
+    { id: 'muscles' as AnatomyView, label: t('anatomy.tab_muscles'), icon: <Bone className="w-4 h-4" /> },
+    { id: 'fascia' as AnatomyView, label: t('anatomy.tab_fascia'), icon: <Network className="w-4 h-4" /> },
+    { id: 'nerves' as AnatomyView, label: t('anatomy.tab_nerves'), icon: <Zap className="w-4 h-4" /> },
+  ]
+
+  const MOBILE_VIEWS: { id: MobileView; label: string }[] = [
+    { id: 'map', label: t('anatomy.view_map') },
+    { id: 'list', label: t('anatomy.view_list') },
+    { id: 'detail', label: t('anatomy.view_detail') },
+  ]
 
   return (
     <div className="flex flex-col h-full">
       <SectionHeader
-        title="Anatomy Explorer"
-        subtitle="Interactive muscle, fascial, and nerve maps"
+        title={t('anatomy.title')}
+        subtitle={t('anatomy.subtitle')}
         icon={<Bone className="w-5 h-5" />}
         actions={
           activeView === 'muscles' ? (
@@ -40,7 +48,7 @@ export function AnatomyExplorer() {
                     : 'text-gray-400 hover:text-gray-200'
                 }`}
               >
-                Anterior
+                {t('anatomy.anterior')}
               </button>
               <button
                 onClick={() => setBodySide('posterior')}
@@ -50,7 +58,7 @@ export function AnatomyExplorer() {
                     : 'text-gray-400 hover:text-gray-200'
                 }`}
               >
-                Posterior
+                {t('anatomy.posterior')}
               </button>
             </div>
           ) : undefined
@@ -64,35 +72,30 @@ export function AnatomyExplorer() {
           <>
             {/* Mobile view switcher */}
             <div className="flex gap-1 mb-3 lg:hidden bg-bg-secondary rounded-xl p-1 border border-bg-border">
-              {(['map', 'list', 'detail'] as MobileView[]).map((v) => (
+              {MOBILE_VIEWS.map((v) => (
                 <button
-                  key={v}
-                  onClick={() => setMobileView(v)}
+                  key={v.id}
+                  onClick={() => setMobileView(v.id)}
                   className={cn(
                     'flex-1 py-2 rounded-lg text-sm font-medium capitalize transition-colors',
-                    mobileView === v
+                    mobileView === v.id
                       ? 'bg-amber-500/20 text-amber-400'
                       : 'text-gray-500 hover:text-gray-300',
                   )}
                 >
-                  {v}
+                  {v.label}
                 </button>
               ))}
             </div>
 
             {/* Desktop 3-column layout */}
             <div className="hidden lg:flex gap-4 h-full">
-              {/* Muscle list */}
               <div className="w-72 overflow-hidden flex flex-col">
                 <MuscleList />
               </div>
-
-              {/* Body map — takes remaining space */}
               <div className="flex-1 bg-bg-secondary rounded-2xl border border-bg-border flex items-center justify-center p-4 overflow-hidden min-w-0">
                 <BodyMapSVG side={bodySide} />
               </div>
-
-              {/* Detail panel */}
               {detailPanelOpen && (
                 <div className="w-96 overflow-hidden rounded-2xl border border-bg-border flex flex-col">
                   <MuscleDetail />
@@ -119,8 +122,8 @@ export function AnatomyExplorer() {
                   ) : (
                     <div className="flex flex-col items-center justify-center h-full gap-3 text-center px-6">
                       <Bone className="w-10 h-10 text-gray-600" />
-                      <p className="text-base font-display text-gray-400">Select a muscle</p>
-                      <p className="text-sm text-gray-600">Tap a muscle on the Map or choose from the List</p>
+                      <p className="text-base font-display text-gray-400">{t('anatomy.empty_title')}</p>
+                      <p className="text-sm text-gray-600">{t('anatomy.empty_desc')}</p>
                     </div>
                   )}
                 </div>

@@ -1,4 +1,5 @@
 import { Menu, Hand } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useAppStore } from '../../store/appStore'
 import { Sidebar } from './Sidebar'
 import { AnatomyExplorer } from '../panels/AnatomyExplorer/AnatomyExplorer'
@@ -10,6 +11,7 @@ import { LearningRoadmap } from '../panels/LearningRoadmap/LearningRoadmap'
 import { ErrorBoundary } from '../shared/ErrorBoundary'
 
 export function AppShell() {
+  const { t } = useTranslation()
   const { activeSection, mobileMenuOpen, toggleMobileMenu } = useAppStore()
 
   const panels = {
@@ -39,7 +41,7 @@ export function AppShell() {
           <button
             onClick={toggleMobileMenu}
             className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-bg-elevated transition-colors"
-            aria-label="Open navigation"
+            aria-label={t('nav.open')}
           >
             <Menu className="w-5 h-5" />
           </button>
@@ -48,7 +50,7 @@ export function AppShell() {
               <Hand className="w-3.5 h-3.5 text-amber-400" />
             </div>
             <span className="font-display text-base font-semibold text-white tracking-wide">
-              MassageStudy
+              {t('brand.mobile')}
             </span>
           </div>
         </header>

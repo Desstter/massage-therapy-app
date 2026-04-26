@@ -1,4 +1,5 @@
 import { X, AlertTriangle, BookOpen } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import type { Technique } from '../../../types/technique.types'
 import { Badge } from '../../shared/Badge'
 import { HandDiagram } from './HandDiagram'
@@ -39,6 +40,8 @@ const pressureColors: Record<string, 'green' | 'amber' | 'orange' | 'red' | 'gra
 }
 
 export function TechniqueDetail({ technique, onClose }: TechniqueDetailProps) {
+  const { t } = useTranslation()
+
   return (
     <div className="flex flex-col h-full bg-bg-secondary border-l border-bg-border overflow-hidden">
       {/* Header */}
@@ -46,14 +49,12 @@ export function TechniqueDetail({ technique, onClose }: TechniqueDetailProps) {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <Badge variant="amber">{technique.category}</Badge>
-            {technique.subcategory && (
-              <Badge variant="gray">{technique.subcategory}</Badge>
-            )}
+            {technique.subcategory && <Badge variant="gray">{technique.subcategory}</Badge>}
           </div>
           <h2 className="text-lg font-bold text-white mt-1">{technique.name}</h2>
           <div className="flex gap-2 mt-2">
             <Badge variant={pressureColors[technique.pressure] ?? 'gray'}>
-              {technique.pressure} pressure
+              {technique.pressure} {t('techniques.pressure')}
             </Badge>
             <Badge variant="blue">{technique.rhythm}</Badge>
             <Badge variant="purple">{technique.duration}</Badge>
@@ -69,16 +70,15 @@ export function TechniqueDetail({ technique, onClose }: TechniqueDetailProps) {
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-5">
-        {/* Hand diagram */}
         <div className="flex justify-center mb-5">
           <HandDiagram animationKey={technique.animationKey} />
         </div>
 
-        <Section title="Description">
+        <Section title={t('techniques.description')}>
           <p className="text-sm text-gray-300 leading-relaxed">{technique.description}</p>
         </Section>
 
-        <Section title="Application Instructions">
+        <Section title={t('techniques.instructions')}>
           <ol className="space-y-2">
             {technique.detailedInstructions.map((step, i) => (
               <li key={i} className="text-sm text-gray-300 flex gap-3">
@@ -91,44 +91,44 @@ export function TechniqueDetail({ technique, onClose }: TechniqueDetailProps) {
           </ol>
         </Section>
 
-        <Section title="Direction">
+        <Section title={t('techniques.direction')}>
           <p className="text-sm text-gray-300">{technique.direction}</p>
         </Section>
 
-        <Section title="Physiological Effects">
+        <Section title={t('techniques.physiological_effects')}>
           <div className="grid grid-cols-1 gap-3">
             {technique.effects.physiological.length > 0 && (
               <div>
-                <p className="text-xs text-gray-500 mb-1">Physiological</p>
+                <p className="text-xs text-gray-500 mb-1">{t('techniques.physiological_effects')}</p>
                 <BulletList items={technique.effects.physiological} />
               </div>
             )}
             {technique.effects.circulatory.length > 0 && (
               <div>
-                <p className="text-xs text-gray-500 mb-1">Circulatory</p>
+                <p className="text-xs text-gray-500 mb-1">{t('techniques.circulatory')}</p>
                 <BulletList items={technique.effects.circulatory} />
               </div>
             )}
             {technique.effects.nervous.length > 0 && (
               <div>
-                <p className="text-xs text-gray-500 mb-1">Nervous System</p>
+                <p className="text-xs text-gray-500 mb-1">{t('techniques.nervous')}</p>
                 <BulletList items={technique.effects.nervous} />
               </div>
             )}
             {technique.effects.psychological.length > 0 && (
               <div>
-                <p className="text-xs text-gray-500 mb-1">Psychological</p>
+                <p className="text-xs text-gray-500 mb-1">{t('techniques.psychological')}</p>
                 <BulletList items={technique.effects.psychological} />
               </div>
             )}
           </div>
         </Section>
 
-        <Section title="Indications">
+        <Section title={t('techniques.indications')}>
           <BulletList items={technique.indications} />
         </Section>
 
-        <Section title="Contraindications">
+        <Section title={t('techniques.contraindications')}>
           <ul className="space-y-1">
             {technique.contraindications.map((c, i) => (
               <li key={i} className="text-sm text-red-300 flex gap-2">
@@ -140,7 +140,7 @@ export function TechniqueDetail({ technique, onClose }: TechniqueDetailProps) {
         </Section>
 
         {technique.variations.length > 0 && (
-          <Section title="Variations">
+          <Section title={t('techniques.variations')}>
             <div className="flex flex-wrap gap-1.5">
               {technique.variations.map((v) => (
                 <Badge key={v} variant="purple">{v}</Badge>
@@ -149,10 +149,10 @@ export function TechniqueDetail({ technique, onClose }: TechniqueDetailProps) {
           </Section>
         )}
 
-        <Section title="Target Tissue">
+        <Section title={t('techniques.target_tissue')}>
           <div className="flex flex-wrap gap-1.5">
-            {technique.targetTissue.map((t) => (
-              <Badge key={t} variant="blue">{t.replace('-', ' ')}</Badge>
+            {technique.targetTissue.map((tis) => (
+              <Badge key={tis} variant="blue">{tis.replace('-', ' ')}</Badge>
             ))}
           </div>
         </Section>
@@ -160,7 +160,7 @@ export function TechniqueDetail({ technique, onClose }: TechniqueDetailProps) {
         <div className="mt-4 pt-4 border-t border-bg-border">
           <p className="text-xs text-gray-500 flex items-center gap-1.5">
             <BookOpen className="w-3.5 h-3.5" />
-            Mosby's Ch.{technique.mosbyChapter}
+            {t('techniques.mosby')}{technique.mosbyChapter}
             {technique.mosbyPageRef && ` · p.${technique.mosbyPageRef}`}
           </p>
         </div>

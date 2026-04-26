@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { MUSCLES } from '../../../data/muscles'
 import { useAnatomyStore } from '../../../store/anatomyStore'
 import { filterMuscles } from '../../../utils/filterHelpers'
@@ -12,20 +13,37 @@ const regionOptions = [
   'all', 'back', 'shoulder', 'chest', 'neck', 'arm', 'forearm', 'hip-glutes', 'thigh', 'leg',
 ] as const
 
+const regionLabels: Record<string, Record<string, string>> = {
+  en: {
+    all: 'All regions', back: 'back', shoulder: 'shoulder', chest: 'chest',
+    neck: 'neck', arm: 'arm', forearm: 'forearm', 'hip-glutes': 'hip / glutes',
+    thigh: 'thigh', leg: 'leg',
+  },
+  es: {
+    all: 'Todas las regiones', back: 'espalda', shoulder: 'hombro', chest: 'pecho',
+    neck: 'cuello', arm: 'brazo', forearm: 'antebrazo', 'hip-glutes': 'cadera / glúteos',
+    thigh: 'muslo', leg: 'pierna',
+  },
+}
+
 export function MuscleList() {
+  const { t, i18n } = useTranslation()
   const { filters, setFilters, selectedMuscleId, selectMuscle } = useAnatomyStore()
+  const lang = i18n.language as 'en' | 'es'
 
   const filtered = useMemo(
     () => filterMuscles(MUSCLES, filters),
     [filters],
   )
 
+  const getRegionLabel = (r: string) => regionLabels[lang]?.[r] ?? r.replace('-', ' ')
+
   return (
     <div className="flex flex-col gap-3 h-full">
       <SearchBar
         value={filters.search}
         onChange={(v) => setFilters({ search: v })}
-        placeholder="Search muscles…"
+        placeholder={lang === 'es' ? 'Buscar músculos…' : 'Search muscles…'}
       />
 
       {/* Region filter pills */}
@@ -41,20 +59,20 @@ export function MuscleList() {
                 : 'border-bg-border text-gray-500 hover:text-gray-300',
             )}
           >
-            {r === 'all' ? 'All regions' : r.replace('-', ' ')}
+            {getRegionLabel(r)}
           </button>
         ))}
       </div>
 
-      <p className="text-sm text-gray-500">{filtered.length} muscles</p>
+      <p className="text-sm text-gray-500">{filtered.length} {t('common.muscles_count')}</p>
 
       {/* List */}
       <div className="flex-1 overflow-y-auto space-y-1.5 pr-1">
         {filtered.length === 0 ? (
           <EmptyState
             icon={<Search className="w-8 h-8" />}
-            title="No muscles found"
-            description="Try adjusting your search or filter"
+            title={lang === 'es' ? 'No se encontraron músculos' : 'No muscles found'}
+            description={lang === 'es' ? 'Intenta ajustar tu búsqueda o filtro' : 'Try adjusting your search or filter'}
           />
         ) : (
           filtered.map((m) => (

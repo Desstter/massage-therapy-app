@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { MapPin } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { BODY_REGIONS } from '../../../data/bodyRegions'
 import { MUSCLES } from '../../../data/muscles'
 import { TECHNIQUES } from '../../../data/techniques'
@@ -11,12 +12,13 @@ import type { Technique } from '../../../types/technique.types'
 import { cn } from '../../../utils/cn'
 
 function RegionDetail({ region }: { region: BodyRegion }) {
+  const { t } = useTranslation()
   const muscles = region.muscles
     .map((id) => getMuscleById(MUSCLES, id))
     .filter((m): m is Muscle => m !== undefined)
   const techniques = region.techniques
     .map((id) => getTechniqueById(TECHNIQUES, id))
-    .filter((t): t is Technique => t !== undefined)
+    .filter((tech): tech is Technique => tech !== undefined)
 
   return (
     <div className="flex-1 overflow-y-auto p-6">
@@ -27,7 +29,7 @@ function RegionDetail({ region }: { region: BodyRegion }) {
         {/* Muscles */}
         <div>
           <h3 className="text-xs font-semibold text-amber-400 uppercase tracking-wider mb-3">
-            Muscles ({muscles.length})
+            {t('regions.muscles')} ({muscles.length})
           </h3>
           <div className="space-y-2">
             {muscles.map((m) => (
@@ -44,13 +46,13 @@ function RegionDetail({ region }: { region: BodyRegion }) {
         {/* Techniques */}
         <div>
           <h3 className="text-xs font-semibold text-amber-400 uppercase tracking-wider mb-3">
-            Applicable Techniques ({techniques.length})
+            {t('regions.applicable_techniques')} ({techniques.length})
           </h3>
           <div className="space-y-2">
-            {techniques.map((t) => (
-              <div key={t.id} className="p-3 bg-bg-secondary rounded-xl border border-bg-border">
-                <p className="text-sm font-medium text-white">{t.name}</p>
-                <Badge variant="blue" size="sm">{t.pressure} pressure</Badge>
+            {techniques.map((tech) => (
+              <div key={tech.id} className="p-3 bg-bg-secondary rounded-xl border border-bg-border">
+                <p className="text-sm font-medium text-white">{tech.name}</p>
+                <Badge variant="blue" size="sm">{tech.pressure} {t('techniques.pressure')}</Badge>
               </div>
             ))}
           </div>
@@ -60,7 +62,7 @@ function RegionDetail({ region }: { region: BodyRegion }) {
       {/* Draping notes */}
       <div className="mt-6">
         <h3 className="text-xs font-semibold text-amber-400 uppercase tracking-wider mb-3">
-          Draping & Positioning
+          {t('regions.draping')}
         </h3>
         <ul className="space-y-2">
           {region.drapingNotes.map((note, i) => (
@@ -74,7 +76,7 @@ function RegionDetail({ region }: { region: BodyRegion }) {
       {/* Common conditions */}
       <div className="mt-6">
         <h3 className="text-xs font-semibold text-amber-400 uppercase tracking-wider mb-3">
-          Common Conditions Treated
+          {t('regions.conditions')}
         </h3>
         <div className="flex flex-wrap gap-1.5">
           {region.commonConditions.map((c) => (
@@ -86,7 +88,7 @@ function RegionDetail({ region }: { region: BodyRegion }) {
       {/* Client positions */}
       <div className="mt-6">
         <h3 className="text-xs font-semibold text-amber-400 uppercase tracking-wider mb-2">
-          Client Positions
+          {t('regions.positions')}
         </h3>
         <div className="flex gap-2">
           {region.clientPositions.map((p) => (
@@ -99,6 +101,7 @@ function RegionDetail({ region }: { region: BodyRegion }) {
 }
 
 export function BodyRegions() {
+  const { t } = useTranslation()
   const [selected, setSelected] = useState<string>(BODY_REGIONS[0].id)
   const [mobileView, setMobileView] = useState<'list' | 'detail'>('list')
   const activeRegion = BODY_REGIONS.find((r) => r.id === selected)
@@ -107,14 +110,13 @@ export function BodyRegions() {
   return (
     <div className="flex flex-col h-full">
       <SectionHeader
-        title="Body Regions"
-        subtitle="Region-specific techniques, draping, and clinical protocols"
+        title={t('regions.title')}
+        subtitle={t('regions.subtitle')}
         icon={<MapPin className="w-5 h-5" />}
       />
 
-      {/* ── Desktop layout (lg+): two-column ── */}
+      {/* Desktop layout */}
       <div className="hidden lg:flex gap-4 flex-1 overflow-hidden">
-        {/* Region selector */}
         <div className="w-52 space-y-1.5 overflow-y-auto">
           {BODY_REGIONS.map((region) => (
             <button
@@ -129,21 +131,19 @@ export function BodyRegions() {
             >
               {region.name}
               <div className="text-xs text-gray-500 font-normal mt-0.5">
-                {region.muscles.length} muscles
+                {region.muscles.length} {t('common.muscles_count')}
               </div>
             </button>
           ))}
         </div>
 
-        {/* Detail */}
         <div className="flex-1 bg-bg-secondary rounded-xl border border-bg-border overflow-hidden">
           <RegionDetail region={activeRegion} />
         </div>
       </div>
 
-      {/* ── Mobile layout (<lg): single-pane with view switcher ── */}
+      {/* Mobile layout */}
       <div className="lg:hidden flex-1 flex flex-col overflow-hidden">
-        {/* View switcher */}
         <div className="flex gap-1 mb-3 bg-bg-secondary rounded-xl p-1 border border-bg-border">
           {(['list', 'detail'] as const).map((v) => (
             <button
@@ -151,17 +151,14 @@ export function BodyRegions() {
               onClick={() => setMobileView(v)}
               className={cn(
                 'flex-1 py-2.5 rounded-lg text-sm font-medium capitalize transition-colors',
-                mobileView === v
-                  ? 'bg-amber-500/20 text-amber-400'
-                  : 'text-gray-500 hover:text-gray-300',
+                mobileView === v ? 'bg-amber-500/20 text-amber-400' : 'text-gray-500 hover:text-gray-300',
               )}
             >
-              {v}
+              {v === 'list' ? t('common.list') : t('common.detail')}
             </button>
           ))}
         </div>
 
-        {/* List pane */}
         {mobileView === 'list' && (
           <div className="flex-1 overflow-y-auto space-y-1.5">
             {BODY_REGIONS.map((region) => (
@@ -177,14 +174,13 @@ export function BodyRegions() {
               >
                 {region.name}
                 <div className="text-xs text-gray-500 font-normal mt-0.5">
-                  {region.muscles.length} muscles
+                  {region.muscles.length} {t('common.muscles_count')}
                 </div>
               </button>
             ))}
           </div>
         )}
 
-        {/* Detail pane */}
         {mobileView === 'detail' && (
           <div className="flex-1 bg-bg-secondary rounded-xl border border-bg-border overflow-hidden">
             <RegionDetail region={activeRegion} />
