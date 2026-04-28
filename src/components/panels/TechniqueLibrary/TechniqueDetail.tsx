@@ -1,5 +1,6 @@
 import { X, AlertTriangle, BookOpen } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { loc } from '../../../utils/localize'
 import type { Technique } from '../../../types/technique.types'
 import { Badge } from '../../shared/Badge'
 import { HandDiagram } from './HandDiagram'
@@ -40,7 +41,8 @@ const pressureColors: Record<string, 'green' | 'amber' | 'orange' | 'red' | 'gra
 }
 
 export function TechniqueDetail({ technique, onClose }: TechniqueDetailProps) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const lang = i18n.language
 
   return (
     <div className="flex flex-col h-full bg-bg-secondary border-l border-bg-border overflow-hidden">
@@ -49,15 +51,15 @@ export function TechniqueDetail({ technique, onClose }: TechniqueDetailProps) {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <Badge variant="amber">{technique.category}</Badge>
-            {technique.subcategory && <Badge variant="gray">{technique.subcategory}</Badge>}
+            {technique.subcategory && <Badge variant="gray">{loc(technique, 'subcategory', lang)}</Badge>}
           </div>
-          <h2 className="text-lg font-bold text-white mt-1">{technique.name}</h2>
+          <h2 className="text-lg font-bold text-white mt-1">{loc(technique, 'name', lang)}</h2>
           <div className="flex gap-2 mt-2">
             <Badge variant={pressureColors[technique.pressure] ?? 'gray'}>
               {technique.pressure} {t('techniques.pressure')}
             </Badge>
             <Badge variant="blue">{technique.rhythm}</Badge>
-            <Badge variant="purple">{technique.duration}</Badge>
+            <Badge variant="purple">{loc(technique, 'duration', lang)}</Badge>
           </div>
         </div>
         <button
@@ -75,12 +77,12 @@ export function TechniqueDetail({ technique, onClose }: TechniqueDetailProps) {
         </div>
 
         <Section title={t('techniques.description')}>
-          <p className="text-sm text-gray-300 leading-relaxed">{technique.description}</p>
+          <p className="text-sm text-gray-300 leading-relaxed">{loc(technique, 'description', lang)}</p>
         </Section>
 
         <Section title={t('techniques.instructions')}>
           <ol className="space-y-2">
-            {technique.detailedInstructions.map((step, i) => (
+            {loc(technique, 'detailedInstructions', lang).map((step, i) => (
               <li key={i} className="text-sm text-gray-300 flex gap-3">
                 <span className="shrink-0 w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 text-xs flex items-center justify-center font-bold mt-0.5">
                   {i + 1}
@@ -92,45 +94,45 @@ export function TechniqueDetail({ technique, onClose }: TechniqueDetailProps) {
         </Section>
 
         <Section title={t('techniques.direction')}>
-          <p className="text-sm text-gray-300">{technique.direction}</p>
+          <p className="text-sm text-gray-300">{loc(technique, 'direction', lang)}</p>
         </Section>
 
         <Section title={t('techniques.physiological_effects')}>
           <div className="grid grid-cols-1 gap-3">
-            {technique.effects.physiological.length > 0 && (
+            {loc(technique.effects, 'physiological', lang).length > 0 && (
               <div>
                 <p className="text-xs text-gray-500 mb-1">{t('techniques.physiological_effects')}</p>
-                <BulletList items={technique.effects.physiological} />
+                <BulletList items={loc(technique.effects, 'physiological', lang)} />
               </div>
             )}
-            {technique.effects.circulatory.length > 0 && (
+            {loc(technique.effects, 'circulatory', lang).length > 0 && (
               <div>
                 <p className="text-xs text-gray-500 mb-1">{t('techniques.circulatory')}</p>
-                <BulletList items={technique.effects.circulatory} />
+                <BulletList items={loc(technique.effects, 'circulatory', lang)} />
               </div>
             )}
-            {technique.effects.nervous.length > 0 && (
+            {loc(technique.effects, 'nervous', lang).length > 0 && (
               <div>
                 <p className="text-xs text-gray-500 mb-1">{t('techniques.nervous')}</p>
-                <BulletList items={technique.effects.nervous} />
+                <BulletList items={loc(technique.effects, 'nervous', lang)} />
               </div>
             )}
-            {technique.effects.psychological.length > 0 && (
+            {loc(technique.effects, 'psychological', lang).length > 0 && (
               <div>
                 <p className="text-xs text-gray-500 mb-1">{t('techniques.psychological')}</p>
-                <BulletList items={technique.effects.psychological} />
+                <BulletList items={loc(technique.effects, 'psychological', lang)} />
               </div>
             )}
           </div>
         </Section>
 
         <Section title={t('techniques.indications')}>
-          <BulletList items={technique.indications} />
+          <BulletList items={loc(technique, 'indications', lang)} />
         </Section>
 
         <Section title={t('techniques.contraindications')}>
           <ul className="space-y-1">
-            {technique.contraindications.map((c, i) => (
+            {loc(technique, 'contraindications', lang).map((c, i) => (
               <li key={i} className="text-sm text-red-300 flex gap-2">
                 <AlertTriangle className="w-3.5 h-3.5 text-red-400 shrink-0 mt-0.5" />
                 {c}
@@ -139,10 +141,10 @@ export function TechniqueDetail({ technique, onClose }: TechniqueDetailProps) {
           </ul>
         </Section>
 
-        {technique.variations.length > 0 && (
+        {loc(technique, 'variations', lang).length > 0 && (
           <Section title={t('techniques.variations')}>
             <div className="flex flex-wrap gap-1.5">
-              {technique.variations.map((v) => (
+              {loc(technique, 'variations', lang).map((v) => (
                 <Badge key={v} variant="purple">{v}</Badge>
               ))}
             </div>

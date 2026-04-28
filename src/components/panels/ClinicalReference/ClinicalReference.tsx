@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { AlertTriangle, Users, FileText } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { loc } from '../../../utils/localize'
 import { CONTRAINDICATIONS } from '../../../data/contraindications'
 import { SPECIAL_POPULATIONS } from '../../../data/specialPopulations'
 import { SectionHeader } from '../../shared/SectionHeader'
@@ -12,7 +13,8 @@ import { cn } from '../../../utils/cn'
 type ClinicalTab = 'contraindications' | 'populations' | 'soap'
 
 function ContraindicationTable() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const lang = i18n.language
   const absolute = CONTRAINDICATIONS.filter((c) => c.type === 'absolute')
   const relative = CONTRAINDICATIONS.filter((c) => c.type === 'relative')
   const [expanded, setExpanded] = useState<string | null>(null)
@@ -27,7 +29,7 @@ function ContraindicationTable() {
           className={cn('w-full flex items-center gap-3 px-4 py-3 text-left transition-colors', c.type === 'absolute' ? 'bg-red-950/30 hover:bg-red-950/50' : 'bg-amber-950/20 hover:bg-amber-950/40')}
         >
           <span className={cn('w-2 h-2 rounded-full shrink-0', c.type === 'absolute' ? 'bg-red-500' : 'bg-amber-500')} />
-          <span className="flex-1 text-sm font-medium text-white">{c.condition}</span>
+          <span className="flex-1 text-sm font-medium text-white">{loc(c, 'condition', lang)}</span>
           <Badge variant={riskColors[c.riskLevel]} size="sm">{c.riskLevel} {t('clinical.risk')}</Badge>
           <span className="text-gray-500 text-xs">{isOpen ? '▲' : '▼'}</span>
         </button>
@@ -35,12 +37,12 @@ function ContraindicationTable() {
           <div className="px-4 py-3 border-t border-bg-border bg-bg-secondary space-y-3">
             <div>
               <p className="text-xs font-semibold text-gray-500 uppercase mb-1">{t('clinical.reasoning')}</p>
-              <p className="text-sm text-gray-300">{c.reasoning}</p>
+              <p className="text-sm text-gray-300">{loc(c, 'reasoning', lang)}</p>
             </div>
             <div>
               <p className="text-xs font-semibold text-gray-500 uppercase mb-1">{t('clinical.exceptions')}</p>
               <ul className="space-y-1">
-                {c.exceptionsOrModifications.map((e, i) => (
+                {loc(c, 'exceptionsOrModifications', lang).map((e, i) => (
                   <li key={i} className="text-sm text-gray-300 flex gap-2">
                     <span className="text-amber-400 shrink-0">→</span>{e}
                   </li>
@@ -86,7 +88,8 @@ function ContraindicationTable() {
 }
 
 function SpecialPopulations() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const lang = i18n.language
   const [selected, setSelected] = useState(SPECIAL_POPULATIONS[0].id)
   const [mobileView, setMobileView] = useState<'list' | 'detail'>('list')
   const pop = SPECIAL_POPULATIONS.find((p) => p.id === selected)
@@ -111,12 +114,12 @@ function SpecialPopulations() {
 
   const detailContent = (
     <div className="flex-1 bg-bg-secondary rounded-xl border border-bg-border overflow-y-auto p-5">
-      <h2 className="text-lg font-bold text-white mb-1">{pop.name}</h2>
-      <p className="text-sm text-gray-400 mb-5">{pop.description}</p>
-      <SectionBlock title={t('clinical.considerations')}><BulletList items={pop.considerations} /></SectionBlock>
+      <h2 className="text-lg font-bold text-white mb-1">{loc(pop, 'name', lang)}</h2>
+      <p className="text-sm text-gray-400 mb-5">{loc(pop, 'description', lang)}</p>
+      <SectionBlock title={t('clinical.considerations')}><BulletList items={loc(pop, 'considerations', lang)} /></SectionBlock>
       <SectionBlock title={t('clinical.pressure_guidelines')}>
         <div className="p-3 bg-amber-950/30 border border-amber-500/30 rounded-xl">
-          <p className="text-sm text-amber-200">{pop.pressureGuidelines}</p>
+          <p className="text-sm text-amber-200">{loc(pop, 'pressureGuidelines', lang)}</p>
         </div>
       </SectionBlock>
       <SectionBlock title={t('clinical.recommended')}>
@@ -129,8 +132,8 @@ function SpecialPopulations() {
           {pop.techniquesToAvoid.map((tech) => <Badge key={tech} variant="red" size="sm">{tech}</Badge>)}
         </div>
       </SectionBlock>
-      <SectionBlock title={t('clinical.positioning')}><BulletList items={pop.positioningNotes} /></SectionBlock>
-      <SectionBlock title={t('clinical.communication')}><BulletList items={pop.communicationTips} /></SectionBlock>
+      <SectionBlock title={t('clinical.positioning')}><BulletList items={loc(pop, 'positioningNotes', lang)} /></SectionBlock>
+      <SectionBlock title={t('clinical.communication')}><BulletList items={loc(pop, 'communicationTips', lang)} /></SectionBlock>
     </div>
   )
 
@@ -140,7 +143,7 @@ function SpecialPopulations() {
         <div className="w-48 space-y-1.5">
           {SPECIAL_POPULATIONS.map((p) => (
             <button key={p.id} onClick={() => setSelected(p.id)} className={cn('w-full text-left px-4 py-3 rounded-xl border text-sm font-medium transition-all', selected === p.id ? 'bg-amber-500/15 border-amber-500/40 text-amber-400' : 'bg-bg-secondary border-bg-border text-gray-300 hover:bg-bg-elevated')}>
-              {p.name}
+              {loc(p, 'name', lang)}
             </button>
           ))}
         </div>
@@ -159,7 +162,7 @@ function SpecialPopulations() {
           <div className="flex-1 overflow-y-auto space-y-1.5">
             {SPECIAL_POPULATIONS.map((p) => (
               <button key={p.id} onClick={() => { setSelected(p.id); setMobileView('detail') }} className={cn('w-full text-left px-4 py-3 rounded-xl border text-sm font-medium transition-all', selected === p.id ? 'bg-amber-500/15 border-amber-500/40 text-amber-400' : 'bg-bg-secondary border-bg-border text-gray-300 hover:bg-bg-elevated')}>
-                {p.name}
+                {loc(p, 'name', lang)}
               </button>
             ))}
           </div>

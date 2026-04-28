@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { MapPin } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { loc } from '../../../utils/localize'
 import { BODY_REGIONS } from '../../../data/bodyRegions'
 import { MUSCLES } from '../../../data/muscles'
 import { TECHNIQUES } from '../../../data/techniques'
@@ -12,7 +13,8 @@ import type { Technique } from '../../../types/technique.types'
 import { cn } from '../../../utils/cn'
 
 function RegionDetail({ region }: { region: BodyRegion }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const lang = i18n.language
   const muscles = region.muscles
     .map((id) => getMuscleById(MUSCLES, id))
     .filter((m): m is Muscle => m !== undefined)
@@ -22,8 +24,8 @@ function RegionDetail({ region }: { region: BodyRegion }) {
 
   return (
     <div className="flex-1 overflow-y-auto p-6">
-      <h2 className="text-xl font-bold text-white mb-1">{region.name}</h2>
-      <p className="text-sm text-gray-400 mb-6">{region.description}</p>
+      <h2 className="text-xl font-bold text-white mb-1">{loc(region, 'name', lang)}</h2>
+      <p className="text-sm text-gray-400 mb-6">{loc(region, 'description', lang)}</p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
         {/* Muscles */}
@@ -34,7 +36,7 @@ function RegionDetail({ region }: { region: BodyRegion }) {
           <div className="space-y-2">
             {muscles.map((m) => (
               <div key={m.id} className="p-3 bg-bg-secondary rounded-xl border border-bg-border">
-                <p className="text-sm font-medium text-white">{m.name}</p>
+                <p className="text-sm font-medium text-white">{loc(m, 'name', lang)}</p>
                 <div className="flex gap-1.5 mt-1">
                   <Badge variant="gray" size="sm">{m.layer}</Badge>
                 </div>
@@ -51,7 +53,7 @@ function RegionDetail({ region }: { region: BodyRegion }) {
           <div className="space-y-2">
             {techniques.map((tech) => (
               <div key={tech.id} className="p-3 bg-bg-secondary rounded-xl border border-bg-border">
-                <p className="text-sm font-medium text-white">{tech.name}</p>
+                <p className="text-sm font-medium text-white">{loc(tech, 'name', lang)}</p>
                 <Badge variant="blue" size="sm">{tech.pressure} {t('techniques.pressure')}</Badge>
               </div>
             ))}
@@ -65,7 +67,7 @@ function RegionDetail({ region }: { region: BodyRegion }) {
           {t('regions.draping')}
         </h3>
         <ul className="space-y-2">
-          {region.drapingNotes.map((note, i) => (
+          {loc(region, 'drapingNotes', lang).map((note, i) => (
             <li key={i} className="flex gap-2 text-sm text-gray-300">
               <span className="text-amber-500 shrink-0 mt-0.5">•</span>{note}
             </li>
@@ -79,7 +81,7 @@ function RegionDetail({ region }: { region: BodyRegion }) {
           {t('regions.conditions')}
         </h3>
         <div className="flex flex-wrap gap-1.5">
-          {region.commonConditions.map((c) => (
+          {loc(region, 'commonConditions', lang).map((c) => (
             <Badge key={c} variant="purple">{c}</Badge>
           ))}
         </div>
@@ -101,7 +103,8 @@ function RegionDetail({ region }: { region: BodyRegion }) {
 }
 
 export function BodyRegions() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const lang = i18n.language
   const [selected, setSelected] = useState<string>(BODY_REGIONS[0].id)
   const [mobileView, setMobileView] = useState<'list' | 'detail'>('list')
   const activeRegion = BODY_REGIONS.find((r) => r.id === selected)
@@ -129,7 +132,7 @@ export function BodyRegions() {
                   : 'bg-bg-secondary border-bg-border text-gray-300 hover:bg-bg-elevated',
               )}
             >
-              {region.name}
+              {loc(region, 'name', lang)}
               <div className="text-xs text-gray-500 font-normal mt-0.5">
                 {region.muscles.length} {t('common.muscles_count')}
               </div>
@@ -172,7 +175,7 @@ export function BodyRegions() {
                     : 'bg-bg-secondary border-bg-border text-gray-300 hover:bg-bg-elevated',
                 )}
               >
-                {region.name}
+                {loc(region, 'name', lang)}
                 <div className="text-xs text-gray-500 font-normal mt-0.5">
                   {region.muscles.length} {t('common.muscles_count')}
                 </div>

@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { loc } from '../../../utils/localize'
 import { MUSCLES } from '../../../data/muscles'
 import { useAnatomyStore } from '../../../store/anatomyStore'
 import { filterMuscles } from '../../../utils/filterHelpers'
@@ -88,7 +89,7 @@ export function MuscleList() {
             >
               <div className="flex items-start justify-between gap-2">
                 <div>
-                  <p className="text-base font-medium leading-snug">{m.name}</p>
+                  <p className="text-base font-medium leading-snug">{loc(m, 'name', lang)}</p>
                   {m.latinName && (
                     <p className="text-sm text-gray-500 italic mt-0.5">{m.latinName}</p>
                   )}

@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { Hand, Search } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { loc } from '../../../utils/localize'
 import { TECHNIQUES } from '../../../data/techniques'
 import { filterTechniques } from '../../../utils/filterHelpers'
 import { SectionHeader } from '../../shared/SectionHeader'
@@ -25,7 +26,8 @@ const pressureColors: Record<string, 'green' | 'amber' | 'orange' | 'red' | 'gra
 }
 
 export function TechniqueLibrary() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const lang = i18n.language
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState<string>('all')
   const [selected, setSelected] = useState<Technique | null>(null)
@@ -68,7 +70,7 @@ export function TechniqueLibrary() {
                       : 'bg-bg-secondary border-bg-border hover:bg-bg-elevated hover:border-amber-500/30',
                   )}
                 >
-                  <p className="text-sm font-medium text-white">{tech.name}</p>
+                  <p className="text-sm font-medium text-white">{loc(tech, 'name', lang)}</p>
                   <div className="flex gap-1.5 mt-1.5">
                     <Badge variant={pressureColors[tech.pressure] ?? 'gray'} size="sm">
                       {tech.pressure}
