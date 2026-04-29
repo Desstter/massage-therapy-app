@@ -2,9 +2,11 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FASCIAL_LINES } from '../../../data/fascialLines'
 import { Badge } from '../../shared/Badge'
+import { loc } from '../../../utils/localize'
 
 export function FascialLines() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const lang = i18n.language
   const [selected, setSelected] = useState<string | null>(null)
   const [hovered, setHovered] = useState<string | null>(null)
 
@@ -74,25 +76,25 @@ export function FascialLines() {
               <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: line.color }} />
               <span className="text-sm font-medium text-white">{line.alternateName}</span>
             </div>
-            <p className="text-xs text-gray-400 leading-snug">{line.name}</p>
+            <p className="text-xs text-gray-400 leading-snug">{loc(line, 'name', lang)}</p>
           </button>
         ))}
 
         {selectedLine && (
           <div className="mt-2 p-4 bg-bg-secondary rounded-xl border border-amber-500/30">
-            <h4 className="text-sm font-bold text-amber-400 mb-2">{selectedLine.name}</h4>
-            <p className="text-xs text-gray-300 mb-3">{selectedLine.description}</p>
+            <h4 className="text-sm font-bold text-amber-400 mb-2">{loc(selectedLine, 'name', lang)}</h4>
+            <p className="text-xs text-gray-300 mb-3">{loc(selectedLine, 'description', lang)}</p>
             <div className="mb-3">
               <p className="text-xs font-semibold text-gray-500 uppercase mb-1.5">{t('anatomy.path')}</p>
               <div className="flex flex-wrap gap-1">
-                {selectedLine.path.map((p) => (
+                {loc(selectedLine, 'path', lang).map((p) => (
                   <Badge key={p} variant="gray" size="sm">{p}</Badge>
                 ))}
               </div>
             </div>
             <div>
               <p className="text-xs font-semibold text-gray-500 uppercase mb-1.5">{t('anatomy.clinical_relevance')}</p>
-              <p className="text-xs text-gray-300 leading-snug">{selectedLine.massageRelevance}</p>
+              <p className="text-xs text-gray-300 leading-snug">{loc(selectedLine, 'massageRelevance', lang)}</p>
             </div>
           </div>
         )}
