@@ -1,104 +1,124 @@
 import { useState } from 'react'
+import { Activity, BookOpen, ChevronRight, Info, Route } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { FASCIAL_LINES } from '../../../data/fascialLines'
+import { FASCIA_PATHWAY_MODELS } from '../../../data/pathwayModels'
 import { Badge } from '../../shared/Badge'
 import { loc } from '../../../utils/localize'
+import { cn } from '../../../utils/cn'
+import { ClinicalPathway3D } from './ClinicalPathway3D'
+
+const COLORS = new Map(FASCIAL_LINES.map((line) => [line.id, line.color]))
+
+const EVIDENCE: Record<string, 'strong' | 'partial' | 'conceptual'> = {
+  sbl: 'strong', ffl: 'strong', bfl: 'strong', ll: 'partial', spal: 'partial',
+  sfl: 'conceptual', afl: 'conceptual', dfl: 'conceptual', sbal: 'conceptual',
+  dbal: 'conceptual', ipfl: 'conceptual', dfal: 'conceptual',
+}
+
+const evidenceStyle = {
+  strong: 'border-emerald-400/25 bg-emerald-400/10 text-emerald-300',
+  partial: 'border-amber-400/25 bg-amber-400/10 text-amber-300',
+  conceptual: 'border-slate-400/20 bg-slate-400/10 text-slate-300',
+}
 
 export function FascialLines() {
-  const { t, i18n } = useTranslation()
+  const { i18n } = useTranslation()
   const lang = i18n.language
-  const [selected, setSelected] = useState<string | null>(null)
+  const [selected, setSelected] = useState(FASCIAL_LINES[0]?.id ?? '')
   const [hovered, setHovered] = useState<string | null>(null)
+  const selectedLine = FASCIAL_LINES.find((line) => line.id === selected) ?? FASCIAL_LINES[0]
+  const activeId = hovered ?? selected
 
-  const selectedLine = FASCIAL_LINES.find((l) => l.id === selected)
-  const activeId = selected ?? hovered
+  const evidenceLabel = (level: keyof typeof evidenceStyle) => {
+    if (lang !== 'es') return level === 'strong' ? 'Strong continuity' : level === 'partial' ? 'Partial continuity' : 'Conceptual model'
+    return level === 'strong' ? 'Continuidad sólida' : level === 'partial' ? 'Continuidad parcial' : 'Modelo conceptual'
+  }
 
   return (
-    <div className="flex gap-4 h-full">
-      {/* SVG visualization */}
-      <div className="flex-1 flex items-center justify-center bg-bg-secondary rounded-xl border border-bg-border p-4">
-        <svg viewBox="0 0 400 800" className="w-auto h-full" style={{ maxHeight: '640px' }}>
-          <g opacity="0.06" fill="#94a3b8">
-            <ellipse cx="200" cy="115" rx="40" ry="50" />
-            <rect x="187" y="155" width="26" height="30" rx="6" />
-            <path d="M 155 182 Q 140 200 138 280 Q 140 330 145 380 Q 155 400 175 405 L 225 405 Q 245 400 255 380 Q 260 330 262 280 Q 260 200 245 182 Z" />
-            <rect x="118" y="190" width="32" height="175" rx="14" />
-            <rect x="250" y="190" width="32" height="175" rx="14" />
-            <rect x="114" y="370" width="28" height="145" rx="12" />
-            <rect x="258" y="370" width="28" height="145" rx="12" />
-            <path d="M 160 405 Q 145 415 148 440 L 252 440 Q 255 415 240 405 Z" />
-            <rect x="160" y="430" width="40" height="160" rx="18" />
-            <rect x="200" y="430" width="40" height="160" rx="18" />
-            <rect x="163" y="595" width="34" height="150" rx="14" />
-            <rect x="203" y="595" width="34" height="150" rx="14" />
-            <ellipse cx="182" cy="758" rx="22" ry="12" />
-            <ellipse cx="218" cy="758" rx="22" ry="12" />
-          </g>
+    <div className="grid min-h-full gap-4 overflow-y-auto lg:h-full lg:grid-cols-[minmax(0,1fr)_360px] lg:overflow-hidden">
+      <ClinicalPathway3D
+        pathways={FASCIA_PATHWAY_MODELS}
+        colors={COLORS}
+        activeId={activeId}
+        selectedId={selected}
+        onHover={setHovered}
+        onSelect={setSelected}
+        kind="fascia"
+        lang={lang}
+      />
 
-          {FASCIAL_LINES.map((line) => {
-            const isActive = line.id === activeId
-            return (
-              <path
-                key={line.id}
-                d={line.svgPathData}
-                fill="none"
-                stroke={line.color}
-                strokeWidth={isActive ? 4 : 1.5}
-                strokeOpacity={isActive ? 0.95 : 0.2}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="cursor-pointer transition-all duration-150"
-                onClick={() => setSelected(line.id === selected ? null : line.id)}
-                onMouseEnter={() => setHovered(line.id)}
-                onMouseLeave={() => setHovered(null)}
-              />
-            )
-          })}
-        </svg>
-      </div>
+      <aside className="flex min-h-[500px] flex-col overflow-hidden rounded-2xl border border-bg-border bg-bg-secondary">
+        <div className="border-b border-bg-border p-4">
+          <div className="mb-1 flex items-center gap-2">
+            <Route className="h-4 w-4 text-cyan-300" />
+            <h3 className="text-sm font-semibold text-white">{lang === 'es' ? 'Continuidades miofasciales' : 'Myofascial continuities'}</h3>
+            <span className="ml-auto rounded-full bg-cyan-400/10 px-2 py-0.5 font-mono text-[10px] text-cyan-300">{FASCIAL_LINES.length}</span>
+          </div>
+          <p className="text-[11px] leading-relaxed text-gray-500">
+            {lang === 'es' ? 'Atlas educativo tridimensional con nivel de evidencia anatómica.' : 'Three-dimensional educational atlas with anatomical evidence level.'}
+          </p>
+        </div>
 
-      {/* Line list + detail */}
-      <div className="w-72 flex flex-col gap-3 overflow-y-auto">
-        <h3 className="text-sm font-semibold text-gray-300">{t('anatomy.fascial_lines')}</h3>
-        {FASCIAL_LINES.map((line) => (
-          <button
-            key={line.id}
-            onClick={() => setSelected(line.id === selected ? null : line.id)}
-            onMouseEnter={() => setHovered(line.id)}
-            onMouseLeave={() => setHovered(null)}
-            className={`text-left p-3 rounded-xl border transition-all ${
-              selected === line.id
-                ? 'border-amber-500/50 bg-amber-500/10'
-                : 'border-bg-border bg-bg-secondary hover:bg-bg-elevated'
-            }`}
-          >
-            <div className="flex items-center gap-2 mb-1">
-              <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: line.color }} />
-              <span className="text-sm font-medium text-white">{line.alternateName}</span>
-            </div>
-            <p className="text-xs text-gray-400 leading-snug">{loc(line, 'name', lang)}</p>
-          </button>
-        ))}
+        <div className="flex-1 overflow-y-auto p-2">
+          <div className="space-y-1">
+            {FASCIAL_LINES.map((line) => {
+              const evidence = EVIDENCE[line.id] ?? 'conceptual'
+              return (
+                <button
+                  key={line.id}
+                  onClick={() => setSelected(line.id)}
+                  onMouseEnter={() => setHovered(line.id)}
+                  onMouseLeave={() => setHovered(null)}
+                  className={cn(
+                    'w-full rounded-xl border p-3 text-left transition',
+                    selected === line.id ? 'border-cyan-400/35 bg-cyan-400/10' : 'border-transparent hover:border-bg-border hover:bg-bg-elevated/60',
+                  )}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="h-8 w-1 rounded-full" style={{ backgroundColor: line.color, boxShadow: selected === line.id ? `0 0 12px ${line.color}` : undefined }} />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="truncate text-sm font-medium text-white">{loc(line, 'name', lang)}</span>
+                        <span className="font-mono text-[9px] text-gray-600">{line.alternateName}</span>
+                      </div>
+                      <span className={cn('mt-1 inline-flex rounded-full border px-1.5 py-0.5 text-[9px]', evidenceStyle[evidence])}>{evidenceLabel(evidence)}</span>
+                    </div>
+                    <ChevronRight className={cn('h-4 w-4 shrink-0', selected === line.id ? 'text-cyan-300' : 'text-gray-700')} />
+                  </div>
+                </button>
+              )
+            })}
+          </div>
 
-        {selectedLine && (
-          <div className="mt-2 p-4 bg-bg-secondary rounded-xl border border-amber-500/30">
-            <h4 className="text-sm font-bold text-amber-400 mb-2">{loc(selectedLine, 'name', lang)}</h4>
-            <p className="text-xs text-gray-300 mb-3">{loc(selectedLine, 'description', lang)}</p>
-            <div className="mb-3">
-              <p className="text-xs font-semibold text-gray-500 uppercase mb-1.5">{t('anatomy.path')}</p>
-              <div className="flex flex-wrap gap-1">
-                {loc(selectedLine, 'path', lang).map((p) => (
-                  <Badge key={p} variant="gray" size="sm">{p}</Badge>
-                ))}
+          {selectedLine && (
+            <div className="m-1 mt-3 rounded-xl border border-cyan-400/20 bg-[#0b151f] p-4">
+              <h4 className="text-base font-semibold text-white">{loc(selectedLine, 'name', lang)}</h4>
+              <p className="mt-1 text-xs leading-relaxed text-gray-400">{loc(selectedLine, 'description', lang)}</p>
+
+              <div className="mt-4">
+                <p className="mb-2 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-cyan-300"><Activity className="h-3 w-3" />{lang === 'es' ? 'Recorrido anatómico' : 'Anatomical course'}</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {loc(selectedLine, 'path', lang).map((part) => <Badge key={part} variant="gray" size="sm">{part}</Badge>)}
+                </div>
+              </div>
+
+              <div className="mt-4 rounded-lg border border-amber-400/15 bg-amber-400/5 p-3">
+                <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-amber-300">{lang === 'es' ? 'Aplicación clínica' : 'Clinical application'}</p>
+                <p className="text-xs leading-relaxed text-gray-300">{loc(selectedLine, 'massageRelevance', lang)}</p>
               </div>
             </div>
-            <div>
-              <p className="text-xs font-semibold text-gray-500 uppercase mb-1.5">{t('anatomy.clinical_relevance')}</p>
-              <p className="text-xs text-gray-300 leading-snug">{loc(selectedLine, 'massageRelevance', lang)}</p>
-            </div>
+          )}
+        </div>
+
+        <div className="border-t border-bg-border p-3">
+          <div className="flex gap-2 text-[10px] leading-relaxed text-gray-500">
+            <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-cyan-400" />
+            <p>{lang === 'es' ? 'Las “líneas” son un modelo de continuidad fascial, no estructuras aisladas ni diagnósticos. La evidencia varía según la cadena.' : '“Lines” are a model of fascial continuity, not isolated structures or diagnoses. Evidence varies by chain.'}</p>
           </div>
-        )}
-      </div>
+          <a className="mt-2 flex items-center gap-1.5 text-[10px] text-gray-500 hover:text-cyan-300" href="https://doi.org/10.1016/j.apmr.2015.07.023" target="_blank" rel="noreferrer"><BookOpen className="h-3 w-3" />{lang === 'es' ? 'Revisión anatómica de la evidencia' : 'Anatomical evidence review'}</a>
+        </div>
+      </aside>
     </div>
   )
 }

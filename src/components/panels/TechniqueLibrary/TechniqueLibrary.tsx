@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { Hand, Search } from 'lucide-react'
+import { BadgeCheck, Hand, Search } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { loc } from '../../../utils/localize'
 import { TECHNIQUES } from '../../../data/techniques'
@@ -30,7 +30,7 @@ export function TechniqueLibrary() {
   const lang = i18n.language
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState<string>('all')
-  const [selected, setSelected] = useState<Technique | null>(null)
+  const [selected, setSelected] = useState<Technique | null>(TECHNIQUES[0] ?? null)
   const [mobileView, setMobileView] = useState<'list' | 'detail'>('list')
 
   const filtered = useMemo(
@@ -48,7 +48,7 @@ export function TechniqueLibrary() {
     return map
   }, [filtered])
 
-  const TechniqueList = ({ onSelect }: { onSelect: (t: Technique) => void }) => (
+  const renderTechniqueList = (onSelect: (technique: Technique) => void) => (
     <div className="flex-1 overflow-y-auto space-y-4 pr-1">
       {filtered.length === 0 ? (
         <EmptyState icon={<Search className="w-8 h-8" />} title={t('techniques.empty_none')} />
@@ -86,7 +86,7 @@ export function TechniqueLibrary() {
     </div>
   )
 
-  const CategoryFilter = () => (
+  const renderCategoryFilter = () => (
     <div className="flex flex-wrap gap-1">
       {CATEGORIES.map((c) => (
         <button
@@ -111,14 +111,20 @@ export function TechniqueLibrary() {
         title={t('techniques.title')}
         subtitle={t('techniques.subtitle')}
         icon={<Hand className="w-5 h-5" />}
+        actions={
+          <div className="hidden items-center gap-1.5 rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1.5 text-xs font-medium text-cyan-200 md:flex">
+            <BadgeCheck className="h-3.5 w-3.5" />
+            {lang === 'es' ? 'Simulación dinámica' : 'Dynamic simulation'}
+          </div>
+        }
       />
 
       {/* Desktop layout */}
       <div className="hidden lg:flex gap-4 flex-1 overflow-hidden">
         <div className="flex flex-col gap-3 w-80 overflow-hidden">
           <SearchBar value={search} onChange={setSearch} placeholder={t('techniques.search')} />
-          <CategoryFilter />
-          <TechniqueList onSelect={(tech) => setSelected(selected?.id === tech.id ? null : tech)} />
+          {renderCategoryFilter()}
+          {renderTechniqueList((tech) => setSelected(selected?.id === tech.id ? null : tech))}
         </div>
 
         <div className="flex-1 overflow-hidden rounded-xl border border-bg-border">
@@ -154,13 +160,11 @@ export function TechniqueLibrary() {
         {mobileView === 'list' && (
           <div className="flex flex-col gap-3 flex-1 overflow-hidden">
             <SearchBar value={search} onChange={setSearch} placeholder={t('techniques.search')} />
-            <CategoryFilter />
-            <TechniqueList
-              onSelect={(tech) => {
+            {renderCategoryFilter()}
+            {renderTechniqueList((tech) => {
                 setSelected(selected?.id === tech.id ? null : tech)
                 setMobileView('detail')
-              }}
-            />
+              })}
           </div>
         )}
 

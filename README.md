@@ -36,6 +36,18 @@ The app provides a structured learning environment covering anatomy, techniques,
 - **Framer Motion** — animations
 - **Lucide React** — icons
 - **Vitest** — unit testing
+- **Three.js / WebGL** — interactive scientific 3D anatomy rendering
+
+## 3D anatomy data
+
+The anatomy explorer uses web-optimized derivatives of **BodyParts3D** from
+the Database Center for Life Science (DBCLS). The viewer renders the complete
+muscular context and exposes 146 named structures as 41 clinically useful,
+selectable muscle groups.
+
+The model assets are licensed separately under **CC BY-SA 2.1 Japan**. See
+[`public/anatomy/ATTRIBUTION.md`](public/anatomy/ATTRIBUTION.md) for the full
+attribution and scientific reference.
 
 ## Getting Started
 
@@ -78,6 +90,6 @@ src/
 └── utils/              # Helper functions
 ```
 
-## License
+## Code license
 
-MIT
+Application code: MIT. Anatomical model assets: CC BY-SA 2.1 Japan.

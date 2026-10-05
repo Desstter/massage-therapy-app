@@ -1,12 +1,12 @@
 import { useState } from 'react'
-import { Bone, Network, Zap } from 'lucide-react'
+import { BadgeCheck, Bone, Network, Zap } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useAnatomyStore } from '../../../store/anatomyStore'
 import { SectionHeader } from '../../shared/SectionHeader'
 import { TabBar } from '../../shared/TabBar'
 import { MuscleList } from './MuscleList'
 import { MuscleDetail } from './MuscleDetail'
-import { BodyMapSVG } from './BodyMapSVG'
+import { Anatomy3DViewer } from './Anatomy3DViewer'
 import { FascialLines } from './FascialLines'
 import { NervePaths } from './NervePaths'
 import { cn } from '../../../utils/cn'
@@ -15,7 +15,7 @@ import type { AnatomyView } from '../../../types/app.types'
 type MobileView = 'map' | 'list' | 'detail'
 
 export function AnatomyExplorer() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { activeView, bodySide, detailPanelOpen, setView, setBodySide } = useAnatomyStore()
   const [mobileView, setMobileView] = useState<MobileView>('map')
 
@@ -39,27 +39,33 @@ export function AnatomyExplorer() {
         icon={<Bone className="w-5 h-5" />}
         actions={
           activeView === 'muscles' ? (
-            <div className="flex items-center gap-1 bg-bg-secondary border border-bg-border rounded-lg p-1">
-              <button
-                onClick={() => setBodySide('anterior')}
-                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                  bodySide === 'anterior'
-                    ? 'bg-amber-500/20 text-amber-400'
-                    : 'text-gray-400 hover:text-gray-200'
-                }`}
-              >
-                {t('anatomy.anterior')}
-              </button>
-              <button
-                onClick={() => setBodySide('posterior')}
-                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                  bodySide === 'posterior'
-                    ? 'bg-amber-500/20 text-amber-400'
-                    : 'text-gray-400 hover:text-gray-200'
-                }`}
-              >
-                {t('anatomy.posterior')}
-              </button>
+            <div className="flex items-center gap-2">
+              <div className="hidden xl:flex items-center gap-1.5 rounded-full border border-rose-400/20 bg-rose-500/10 px-3 py-1.5 text-xs font-medium text-rose-200">
+                <BadgeCheck className="w-3.5 h-3.5" />
+                {i18n.language === 'es' ? 'Atlas científico 3D' : 'Scientific 3D atlas'}
+              </div>
+              <div className="flex items-center gap-1 bg-bg-secondary border border-bg-border rounded-lg p-1">
+                <button
+                  onClick={() => setBodySide('anterior')}
+                  className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                    bodySide === 'anterior'
+                      ? 'bg-rose-500/20 text-rose-200'
+                      : 'text-gray-400 hover:text-gray-200'
+                  }`}
+                >
+                  {t('anatomy.anterior')}
+                </button>
+                <button
+                  onClick={() => setBodySide('posterior')}
+                  className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                    bodySide === 'posterior'
+                      ? 'bg-rose-500/20 text-rose-200'
+                      : 'text-gray-400 hover:text-gray-200'
+                  }`}
+                >
+                  {t('anatomy.posterior')}
+                </button>
+              </div>
             </div>
           ) : undefined
         }
@@ -90,14 +96,14 @@ export function AnatomyExplorer() {
 
             {/* Desktop 3-column layout */}
             <div className="hidden lg:flex gap-4 h-full">
-              <div className="w-72 overflow-hidden flex flex-col">
+              <div className="w-64 overflow-hidden flex flex-col">
                 <MuscleList />
               </div>
-              <div className="flex-1 bg-bg-secondary rounded-2xl border border-bg-border flex items-center justify-center p-4 overflow-hidden min-w-0">
-                <BodyMapSVG side={bodySide} />
+              <div className="flex-1 bg-bg-secondary rounded-2xl border border-bg-border flex items-center justify-center overflow-hidden min-w-0 shadow-2xl shadow-black/20">
+                <Anatomy3DViewer side={bodySide} />
               </div>
               {detailPanelOpen && (
-                <div className="w-96 overflow-hidden rounded-2xl border border-bg-border flex flex-col">
+                <div className="w-[340px] overflow-hidden rounded-2xl border border-bg-border flex flex-col">
                   <MuscleDetail />
                 </div>
               )}
@@ -106,8 +112,8 @@ export function AnatomyExplorer() {
             {/* Mobile single-pane layout */}
             <div className="lg:hidden h-full">
               {mobileView === 'map' && (
-                <div className="h-full bg-bg-secondary rounded-2xl border border-bg-border flex items-center justify-center p-3">
-                  <BodyMapSVG side={bodySide} />
+                <div className="h-full bg-bg-secondary rounded-2xl border border-bg-border flex items-center justify-center overflow-hidden">
+                  <Anatomy3DViewer side={bodySide} />
                 </div>
               )}
               {mobileView === 'list' && (

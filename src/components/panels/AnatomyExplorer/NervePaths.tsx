@@ -1,117 +1,126 @@
 import { useState } from 'react'
+import { AlertTriangle, BookOpen, ChevronRight, Info, Radio } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { NERVE_PATHS } from '../../../data/nervePaths'
+import { NERVE_PATHWAY_MODELS } from '../../../data/pathwayModels'
 import { Badge } from '../../shared/Badge'
 import { loc } from '../../../utils/localize'
+import { cn } from '../../../utils/cn'
+import { ClinicalPathway3D } from './ClinicalPathway3D'
+
+const COLORS = new Map(NERVE_PATHS.map((nerve) => [nerve.id, nerve.color]))
 
 export function NervePaths() {
-  const { t, i18n } = useTranslation()
+  const { i18n } = useTranslation()
   const lang = i18n.language
-  const [selected, setSelected] = useState<string | null>(null)
+  const [selected, setSelected] = useState(NERVE_PATHS[0]?.id ?? '')
   const [hovered, setHovered] = useState<string | null>(null)
-
-  const selectedNerve = NERVE_PATHS.find((n) => n.id === selected)
-  const activeId = selected ?? hovered
+  const selectedNerve = NERVE_PATHS.find((nerve) => nerve.id === selected) ?? NERVE_PATHS[0]
+  const activeId = hovered ?? selected
 
   return (
-    <div className="flex gap-4 h-full">
-      {/* SVG */}
-      <div className="flex-1 flex items-center justify-center bg-bg-secondary rounded-xl border border-bg-border p-4">
-        <svg viewBox="0 0 400 800" className="w-auto h-full" style={{ maxHeight: '640px' }}>
-          <g opacity="0.06" fill="#94a3b8">
-            <ellipse cx="200" cy="115" rx="40" ry="50" />
-            <rect x="187" y="155" width="26" height="30" rx="6" />
-            <path d="M 155 182 Q 140 200 138 280 Q 140 330 145 380 Q 155 400 175 405 L 225 405 Q 245 400 255 380 Q 260 330 262 280 Q 260 200 245 182 Z" />
-            <rect x="118" y="190" width="32" height="175" rx="14" />
-            <rect x="250" y="190" width="32" height="175" rx="14" />
-            <rect x="114" y="370" width="28" height="145" rx="12" />
-            <rect x="258" y="370" width="28" height="145" rx="12" />
-            <path d="M 160 405 Q 145 415 148 440 L 252 440 Q 255 415 240 405 Z" />
-            <rect x="160" y="430" width="40" height="160" rx="18" />
-            <rect x="200" y="430" width="40" height="160" rx="18" />
-            <rect x="163" y="595" width="34" height="150" rx="14" />
-            <rect x="203" y="595" width="34" height="150" rx="14" />
-          </g>
+    <div className="grid min-h-full gap-4 overflow-y-auto lg:h-full lg:grid-cols-[minmax(0,1fr)_380px] lg:overflow-hidden">
+      <ClinicalPathway3D
+        pathways={NERVE_PATHWAY_MODELS}
+        colors={COLORS}
+        activeId={activeId}
+        selectedId={selected}
+        onHover={setHovered}
+        onSelect={setSelected}
+        kind="nerve"
+        lang={lang}
+      />
 
-          {NERVE_PATHS.map((nerve) => {
-            const isActive = nerve.id === activeId
-            return (
-              <path
+      <aside className="flex min-h-[500px] flex-col overflow-hidden rounded-2xl border border-bg-border bg-bg-secondary">
+        <div className="border-b border-bg-border p-4">
+          <div className="mb-1 flex items-center gap-2">
+            <Radio className="h-4 w-4 text-violet-300" />
+            <h3 className="text-sm font-semibold text-white">{lang === 'es' ? 'Neuroanatomía periférica' : 'Peripheral neuroanatomy'}</h3>
+            <span className="ml-auto rounded-full bg-violet-400/10 px-2 py-0.5 font-mono text-[10px] text-violet-300">{NERVE_PATHS.length}</span>
+          </div>
+          <p className="text-[11px] leading-relaxed text-gray-500">
+            {lang === 'es' ? 'Trayectos, raíces espinales y zonas frecuentes de compresión.' : 'Courses, spinal roots, and common compression zones.'}
+          </p>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-2">
+          <div className="space-y-1">
+            {NERVE_PATHS.map((nerve) => (
+              <button
                 key={nerve.id}
-                d={nerve.svgPathData}
-                fill="none"
-                stroke={nerve.color}
-                strokeWidth={isActive ? 4 : 2}
-                strokeOpacity={isActive ? 1 : 0.22}
-                strokeLinecap="round"
-                strokeDasharray={isActive ? 'none' : '6 4'}
-                className="cursor-pointer transition-all duration-150"
-                onClick={() => setSelected(nerve.id === selected ? null : nerve.id)}
+                onClick={() => setSelected(nerve.id)}
                 onMouseEnter={() => setHovered(nerve.id)}
                 onMouseLeave={() => setHovered(null)}
-              />
-            )
-          })}
-        </svg>
-      </div>
+                className={cn(
+                  'w-full rounded-xl border p-3 text-left transition',
+                  selected === nerve.id ? 'border-violet-400/35 bg-violet-400/10' : 'border-transparent hover:border-bg-border hover:bg-bg-elevated/60',
+                )}
+              >
+                <div className="flex items-center gap-2.5">
+                  <span className="relative grid h-8 w-8 shrink-0 place-items-center rounded-full border border-white/10 bg-black/20">
+                    <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: nerve.color, boxShadow: selected === nerve.id ? `0 0 12px ${nerve.color}` : undefined }} />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium text-white">{loc(nerve, 'name', lang)}</p>
+                    <p className="mt-0.5 truncate text-[10px] text-gray-500">{loc(nerve, 'origin', lang)}</p>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-1">
+                    {nerve.spinalLevels.slice(0, 3).map((level) => <span key={level} className="font-mono text-[9px] text-violet-300/70">{level}</span>)}
+                    <ChevronRight className={cn('ml-1 h-4 w-4', selected === nerve.id ? 'text-violet-300' : 'text-gray-700')} />
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
 
-      {/* Nerve list */}
-      <div className="w-72 flex flex-col gap-2 overflow-y-auto">
-        <h3 className="text-sm font-semibold text-gray-300">{t('anatomy.peripheral_nerves')}</h3>
-        {NERVE_PATHS.map((nerve) => (
-          <button
-            key={nerve.id}
-            onClick={() => setSelected(nerve.id === selected ? null : nerve.id)}
-            onMouseEnter={() => setHovered(nerve.id)}
-            onMouseLeave={() => setHovered(null)}
-            className={`text-left p-3 rounded-xl border transition-all ${
-              selected === nerve.id
-                ? 'border-amber-500/50 bg-amber-500/10'
-                : 'border-bg-border bg-bg-secondary hover:bg-bg-elevated'
-            }`}
-          >
-            <div className="flex items-center gap-2 mb-0.5">
-              <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: nerve.color }} />
-              <span className="text-sm font-medium text-white">{loc(nerve, 'name', lang)}</span>
-            </div>
-            <p className="text-xs text-gray-500">
-              {nerve.spinalLevels.join(', ')} · {loc(nerve, 'origin', lang)}
-            </p>
-          </button>
-        ))}
+          {selectedNerve && (
+            <div className="m-1 mt-3 rounded-xl border border-violet-400/20 bg-[#101321] p-4">
+              <div className="flex items-start gap-3">
+                <span className="mt-1 h-3 w-3 shrink-0 rounded-full" style={{ backgroundColor: selectedNerve.color, boxShadow: `0 0 12px ${selectedNerve.color}` }} />
+                <div>
+                  <h4 className="text-base font-semibold text-white">{loc(selectedNerve, 'name', lang)}</h4>
+                  <p className="text-xs text-gray-500">{loc(selectedNerve, 'origin', lang)}</p>
+                </div>
+              </div>
 
-        {selectedNerve && (
-          <div className="mt-2 p-4 bg-bg-secondary rounded-xl border border-amber-500/30">
-            <h4 className="text-sm font-bold text-amber-400 mb-1">{loc(selectedNerve, 'name', lang)}</h4>
-            <p className="text-xs text-gray-400 mb-3">{loc(selectedNerve, 'origin', lang)}</p>
+              <div className="mt-4 grid grid-cols-2 gap-3">
+                <div className="rounded-lg border border-white/5 bg-white/[.02] p-3">
+                  <p className="mb-2 text-[9px] font-semibold uppercase tracking-wider text-violet-300">{lang === 'es' ? 'Raíces' : 'Roots'}</p>
+                  <div className="flex flex-wrap gap-1">{selectedNerve.spinalLevels.map((level) => <Badge key={level} variant="purple" size="sm">{level}</Badge>)}</div>
+                </div>
+                <div className="rounded-lg border border-white/5 bg-white/[.02] p-3">
+                  <p className="mb-1 text-[9px] font-semibold uppercase tracking-wider text-violet-300">{lang === 'es' ? 'Distribución' : 'Distribution'}</p>
+                  <p className="line-clamp-3 text-[10px] leading-relaxed text-gray-400">{loc(selectedNerve, 'distribution', lang).join(' · ')}</p>
+                </div>
+              </div>
 
-            <div className="mb-3">
-              <p className="text-xs font-semibold text-gray-500 uppercase mb-1">{t('anatomy.spinal_levels')}</p>
-              <div className="flex flex-wrap gap-1">
-                {selectedNerve.spinalLevels.map((l) => (
-                  <Badge key={l} variant="blue" size="sm">{l}</Badge>
-                ))}
+              <div className="mt-4">
+                <p className="mb-2 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-rose-300"><AlertTriangle className="h-3 w-3" />{lang === 'es' ? 'Zonas de posible compresión' : 'Possible compression zones'}</p>
+                <div className="space-y-1.5">
+                  {loc(selectedNerve, 'commonEntrapmentSites', lang).map((site) => (
+                    <div key={site} className="flex gap-2 rounded-lg border border-rose-400/10 bg-rose-400/5 px-2.5 py-2 text-[11px] leading-snug text-gray-300">
+                      <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-rose-400" />{site}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-4 rounded-lg border border-amber-400/15 bg-amber-400/5 p-3">
+                <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-amber-300">{lang === 'es' ? 'Seguridad manual' : 'Manual safety'}</p>
+                <p className="text-xs leading-relaxed text-gray-300">{loc(selectedNerve, 'massageConsiderations', lang)}</p>
               </div>
             </div>
+          )}
+        </div>
 
-            <div className="mb-3">
-              <p className="text-xs font-semibold text-gray-500 uppercase mb-1">{t('anatomy.entrapment_sites')}</p>
-              <ul className="space-y-1">
-                {loc(selectedNerve, 'commonEntrapmentSites', lang).map((s) => (
-                  <li key={s} className="text-xs text-gray-300 flex gap-1.5">
-                    <span className="text-red-400 mt-0.5 shrink-0">⚠</span>{s}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div>
-              <p className="text-xs font-semibold text-gray-500 uppercase mb-1">{t('anatomy.massage_notes')}</p>
-              <p className="text-xs text-gray-300 leading-snug">{loc(selectedNerve, 'massageConsiderations', lang)}</p>
-            </div>
+        <div className="border-t border-bg-border p-3">
+          <div className="flex gap-2 text-[10px] leading-relaxed text-gray-500">
+            <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-violet-400" />
+            <p>{lang === 'es' ? 'Las rutas son esquemáticas y educativas. Dolor irradiado, debilidad, pérdida sensitiva o pie caído requieren evaluación sanitaria.' : 'Routes are schematic and educational. Radiating pain, weakness, sensory loss, or foot drop require clinical evaluation.'}</p>
           </div>
-        )}
-      </div>
+          <a className="mt-2 flex items-center gap-1.5 text-[10px] text-gray-500 hover:text-violet-300" href="https://pmc.ncbi.nlm.nih.gov/articles/PMC3483739/" target="_blank" rel="noreferrer"><BookOpen className="h-3 w-3" />{lang === 'es' ? 'Referencia anatómica revisada' : 'Reviewed anatomy reference'}</a>
+        </div>
+      </aside>
     </div>
   )
 }

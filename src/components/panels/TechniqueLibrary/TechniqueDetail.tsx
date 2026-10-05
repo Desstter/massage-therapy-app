@@ -1,4 +1,4 @@
-import { X, AlertTriangle, BookOpen } from 'lucide-react'
+import { X, AlertTriangle, BookOpen, Hand, Scale } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { loc } from '../../../utils/localize'
 import type { Technique } from '../../../types/technique.types'
@@ -72,9 +72,26 @@ export function TechniqueDetail({ technique, onClose }: TechniqueDetailProps) {
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-5">
-        <div className="flex justify-center mb-5">
-          <HandDiagram animationKey={technique.animationKey} />
+        <div className="mb-5">
+          <HandDiagram technique={technique} lang={lang} />
         </div>
+
+        <Section title={lang === 'es' ? 'Posiciones y contacto' : 'Positions and contact'}>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {technique.handPositions.map((position) => (
+              <div key={`${position.handShape}-${position.description}`} className="rounded-xl border border-white/5 bg-bg-primary/40 p-3">
+                <div className="flex items-start gap-2.5">
+                  <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-amber-400/10 text-amber-300"><Hand className="h-4 w-4" /></span>
+                  <div className="min-w-0">
+                    <p className="text-xs font-medium text-white">{loc(position, 'description', lang)}</p>
+                    <p className="mt-1 text-[10px] leading-snug text-gray-500">{loc(position, 'contactSurface', lang)}</p>
+                    {position.bodyWeight && <p className="mt-2 flex items-center gap-1 text-[9px] font-medium uppercase tracking-wider text-cyan-300"><Scale className="h-3 w-3" />{lang === 'es' ? 'Usa peso corporal' : 'Uses body weight'}</p>}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Section>
 
         <Section title={t('techniques.description')}>
           <p className="text-sm text-gray-300 leading-relaxed">{loc(technique, 'description', lang)}</p>
@@ -165,6 +182,10 @@ export function TechniqueDetail({ technique, onClose }: TechniqueDetailProps) {
             {t('techniques.mosby')}{technique.mosbyChapter}
             {technique.mosbyPageRef && ` · p.${technique.mosbyPageRef}`}
           </p>
+          <a href="https://www.nccih.nih.gov/health/massage-therapy-what-you-need-to-know" target="_blank" rel="noreferrer" className="mt-2 inline-flex items-center gap-1.5 text-[10px] text-gray-600 hover:text-amber-300">
+            <AlertTriangle className="h-3 w-3" />
+            {lang === 'es' ? 'Evidencia y seguridad del masaje (NCCIH)' : 'Massage evidence and safety (NCCIH)'}
+          </a>
         </div>
       </div>
     </div>
